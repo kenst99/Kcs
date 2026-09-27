@@ -428,7 +428,7 @@ function tens(ts) {
   if (a.length === 1) { if (x.t === 'ten') return { v: 10 }; if (x.t === 'd') return { v: x.v }; if (x.t === 'half') return { v: 5 }; }
   if (x.t === 'ten') { if (y && y.t === 'd') return { v: 10 + y.v }; return { v: 10 }; }
   if (x.t === 'd' && y && y.t === 'm' && y.v === 10) { return { v: x.v * 10 + (z && z.t === 'd' ? z.v : 0) }; }
-  if (x.t === 'd' && y && y.t === 'd' && !x.num && !y.num) return { v: x.v * 10 + y.v, colloq: true };
+  if (a.length === 2 && x.t === 'd' && y && y.t === 'd' && !x.num && !y.num) return { v: x.v * 10 + y.v, colloq: true };
   if (x.t === 'd' && y && y.t === 'half') return { v: x.v + 0.5 };
   let v = 0; for (const t of a) if (t.t === 'd') v = v * 10 + t.v; return { v };
 }
@@ -513,8 +513,11 @@ function tokenize(text) {
         if (nx.t === 'linh') { const nn = numInfo(words[j + 1]); if (nn && nn.t === 'd') { run.push(nx); j++; continue; } break; }
         if (nx.t === 'd') {
           if (nx.num && last.t === 'd' && last.num) break;
-          if (nx.v === 0 && !nx.num) { const nn = numInfo(words[j + 1]); if (!(nn && nn.t === 'm' && nn.v === 100)) break; }
-          if (!afterDot && last.t === 'd' && run.length >= 2 && run[run.length - 2].t === 'd') break;
+          // Đọc từng chữ số liên tiếp (biển số, cân nặng…) không có "trăm/nghìn" xen giữa —
+          // cho phép nối dài tuỳ ý, kể cả có số 0, thay vì bị cắt sau 2 chữ số.
+          const pureDigits = run.every(r => r.t === 'd');
+          if (nx.v === 0 && !nx.num && !pureDigits) { const nn = numInfo(words[j + 1]); if (!(nn && nn.t === 'm' && nn.v === 100)) break; }
+          if (!afterDot && !pureDigits && last.t === 'd' && run.length >= 2 && run[run.length - 2].t === 'd') break;
           if (!afterDot && last.t === 'd' && last.num && !nx.num) {
             // "3 ngàn 2" ok (có hệ số ở giữa) — còn "3200 hai" thì tách
             break;
