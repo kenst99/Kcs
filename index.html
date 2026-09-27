@@ -1184,6 +1184,12 @@ function handle(text) {
     [/\b(doc lai|doc phieu|kiem tra phieu|nhac lai|phieu nay the nao)\b/, readForm],
     [/\b(tong|thanh tien|tien)\b.*\b(phieu nay|dang nhap|xe nay)\b|\b(doc tong|doc tien|tong phieu|het bao nhieu|tinh tien)\b|^(bao nhieu tien|tong bao nhieu|thanh tien bao nhieu|tong tien)$/, readTotal],
     [/\b(kl thuc|ky thuc|khoi luong thuc|hang thuc|tinh ra bao nhieu ky)\b/, () => { const r = calc(S.form); if (r.net == null) return say('Chưa đủ KL xe hàng và KL xe.', null, true); say('KL thực ' + fmt(r.net) + ' kg (tạp chất ' + fmt(r.tc) + ' kg)', readNum(r.net) + ' ký'); }],
+    [/\b(tong ket cuoi ngay|chot so|bao cao cuoi ngay|tong ket hom nay|chot ngay|dong so hom nay)\b/, () => {
+      const rs = recsOf(today()), st = stats(rs);
+      if (!rs.length) return say('Hôm nay chưa có phiếu nào.', null, true);
+      say(`TỔNG KẾT ${dmy(today())}\n${st.n} phiếu · KL thực ${fmt(st.net)} kg\nTiền mặt ${fmt(st.cash)} đ · Chuyển khoản ${fmt(st.ck)} đ · Còn nợ ${fmt(st.debt)} đ\nTổng cộng ${fmt(st.money)} đ`,
+        `Hôm nay ${st.n} phiếu, tổng ${readNum(st.money)} đồng. Tiền mặt ${readNum(st.cash)} đồng, chuyển khoản ${readNum(st.ck)} đồng, còn nợ ${readNum(st.debt)} đồng.`);
+    }],
   ];
   for (const [re, fn] of R) { const m = cc.match(re); if (m) { fn(m); return; } }
 
@@ -1239,11 +1245,16 @@ function clearConfirm() { pendingConfirm = null; $('vConfirm').classList.remove(
 /* ---- đọc to: chỉ dùng giọng tiếng Việt ---- */
 let viVoice = null, allVoices = [], speaking = false, speakQ = [], netAudio = null, warnedNoVoice = false;
 const isVi = v => /^vi([-_]|$)/i.test(v.lang) || /vietnam|việt|tiếng việt/i.test(v.name);
+/* Ưu tiên: giọng đã chọn tay > giọng chạy offline trên máy (ổn định, không cần mạng) >
+   giọng nữ Google chất lượng tốt > giọng Google bất kỳ > giọng đầu tiên có sẵn */
+function voiceScore(v) {
+  return (v.localService ? 100 : 0) + (/google/i.test(v.name) ? 10 : 0) + (/nữ|female|linh|mai|an\b|hoai/i.test(v.name) ? 1 : 0);
+}
 function pickVoice() {
   if (!('speechSynthesis' in window)) return;
   allVoices = speechSynthesis.getVoices();
   const vi = allVoices.filter(isVi);
-  viVoice = vi.find(v => v.name === S.settings.voiceName) || vi.find(v => /google/i.test(v.name)) || vi[0] || null;
+  viVoice = vi.find(v => v.name === S.settings.voiceName) || [...vi].sort((a, b) => voiceScore(b) - voiceScore(a))[0] || null;
   renderVoiceUI();
 }
 if ('speechSynthesis' in window) {
@@ -1429,6 +1440,7 @@ const HELP = [
     ['dòng 5 bao nhiêu', 'Đọc chi tiết dòng 5'], ['phiếu vừa rồi', 'Đọc phiếu cuối'], ['xóa dòng cuối', 'Hỏi lại rồi mới xóa — đáp "chắc" hoặc "thôi"'],
   ]],
   ['Hỏi nhanh', [
+    ['tổng kết cuối ngày', 'Đọc gộp: số phiếu, KL thực, tiền mặt, chuyển khoản, còn nợ, tổng tiền'],
     ['hôm nay mua được bao nhiêu tấn', 'Tổng KL thực'], ['hôm nay bao nhiêu tiền', 'Tổng tiền mua'], ['hôm nay mấy xe', 'Số phiếu'], ['hôm qua bao nhiêu ký tole', 'Theo mặt hàng, theo ngày'],
     ['tuần này bao nhiêu tiền', 'Theo tuần / tháng'], ['còn nợ khách nào', 'Danh sách nợ'], ['anh Tư còn nợ bao nhiêu', 'Nợ 1 khách'], ['xe 61784 hôm nay mấy chuyến', 'Theo biển số'],
     ['tiền mặt hôm nay bao nhiêu', 'Tiền mặt đã chi'], ['tạp chất hôm nay bao nhiêu', 'Tổng tạp chất và %'], ['giá trung bình sắt tháng này', 'Giá mua bình quân'],
