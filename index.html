@@ -1,0 +1,2017 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FFD100">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Cân nhanh · Phế Liệu Trung Hiếu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FFFFFF; --ink:#000000; --soft:#262626; --line:#000000;
+  --signal:#FFD100; --signal-deep:#E6B800;
+  --warn:#C4001A; --cash:#00652B; --bank:#0033A0; --debt:#9A3B00;
+  --field:#F2F2F2; --hit:#FFF3A6; --on-signal:#000000; --on-color:#FFFFFF;
+  --bw:3px; --fs:1; --r:10px;
+  --font:"Be Vietnam Pro", Roboto, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;background:var(--paper);color:var(--ink)}
+body{font-family:var(--font);font-weight:600;font-size:calc(17px * var(--fs));line-height:1.35;-webkit-tap-highlight-color:transparent;
+  padding-bottom:calc(196px + env(safe-area-inset-bottom,0px));font-variant-numeric:tabular-nums}
+body.hc{--bw:4px;--field:var(--paper);--soft:var(--ink)}
+body.hc input{font-weight:900}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:4px solid var(--bank);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* Thanh trên */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--paper);border-bottom:var(--bw) solid var(--line);
+  display:flex;align-items:center;gap:8px;padding:8px 12px}
+.brand{flex:1;min-width:0}
+.brand b{display:block;font-size:1.15em;font-weight:900;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand small{font-size:.8em;color:var(--soft);font-weight:700}
+.tbtn{min-height:48px;min-width:48px;padding:0 12px;border:var(--bw) solid var(--line);border-radius:var(--r);background:var(--paper);font-weight:800;font-size:.95em}
+.tbtn .n{display:inline-block;min-width:1.6em;padding:0 .3em;margin-left:4px;background:var(--ink);color:var(--paper);border-radius:6px}
+
+main{max-width:560px;margin:0 auto;padding:10px 12px 0}
+.editing{display:none;margin:0 0 10px;padding:10px 12px;border:var(--bw) dashed var(--bank);border-radius:var(--r);color:var(--bank);font-weight:800;align-items:center;gap:8px}
+.editing.on{display:flex}
+.editing button{margin-left:auto;min-height:40px;border:2px solid var(--bank);background:var(--paper);color:var(--bank);border-radius:8px;font-weight:800;padding:0 10px}
+
+/* Mặt hàng */
+.items{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+.item{min-height:56px;border:var(--bw) solid var(--line);border-radius:var(--r);background:var(--paper);font-weight:800;font-size:1em;padding:4px}
+.item[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+
+label.f{display:block;font-size:.85em;font-weight:800;margin:0 0 4px}
+.f .u{font-weight:600;color:var(--soft)}
+.in{width:100%;min-height:56px;border:var(--bw) solid var(--line);border-radius:var(--r);background:var(--field);padding:6px 12px;font-size:1.35em;font-weight:800;appearance:none}
+.in:focus{background:var(--paper)}
+.in.big{font-size:1.9em;min-height:66px;letter-spacing:.01em}
+.in.flash{animation:flash 1.2s ease-out}
+@keyframes flash{0%{background:var(--signal)}100%{background:var(--field)}}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.blk{margin-bottom:12px;position:relative}
+.hint{font-size:.82em;color:var(--soft);font-weight:700;margin-top:4px;min-height:1.2em}
+.hint.warn{color:var(--warn)}
+
+/* Gợi ý biển số */
+.sug{position:absolute;left:0;right:0;top:100%;z-index:15;background:var(--paper);border:var(--bw) solid var(--line);border-top:0;border-radius:0 0 var(--r) var(--r);display:none;max-height:260px;overflow:auto}
+.sug.on{display:block}
+.sug button{display:flex;width:100%;justify-content:space-between;gap:8px;min-height:52px;padding:6px 12px;border:0;border-bottom:2px solid var(--line);background:var(--paper);text-align:left;font-weight:800;font-size:1.05em}
+.sug button:last-child{border-bottom:0}
+.sug button span{font-weight:600;color:var(--soft);font-size:.9em}
+
+/* Tạp chất */
+.tc{display:grid;grid-template-columns:repeat(4,52px) 1fr;gap:6px;align-items:stretch}
+.chip{min-height:56px;border:var(--bw) solid var(--line);border-radius:var(--r);background:var(--paper);font-weight:800}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.tc .in{font-size:1.25em;min-height:56px;text-align:center;padding:4px}
+
+/* Thanh toán */
+.pay{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+.pay button{min-height:52px;border:var(--bw) solid var(--line);border-radius:var(--r);background:var(--paper);font-weight:800;font-size:.95em}
+.pay button[data-k="cash"][aria-pressed="true"]{background:var(--cash);border-color:var(--cash);color:var(--on-color)}
+.pay button[data-k="ck"][aria-pressed="true"]{background:var(--bank);border-color:var(--bank);color:var(--on-color)}
+.pay button[data-k="debt"][aria-pressed="true"]{background:var(--debt);border-color:var(--debt);color:var(--on-color)}
+
+/* Các bước tính */
+.steps{border-top:var(--bw) solid var(--line);margin-top:6px;padding:10px 0 4px;display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:1em}
+.steps dt{font-weight:700;color:var(--soft)}
+.steps dd{margin:0;text-align:right;font-weight:900}
+
+/* Dải tổng tiền — giống bảng số cân */
+.total{position:fixed;left:0;right:0;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:30;background:var(--signal);color:var(--on-signal);border-top:4px solid var(--line);padding:6px 14px 8px}
+.total .in2{max-width:560px;margin:0 auto}
+.total .l1{display:flex;justify-content:space-between;gap:8px;font-weight:800;font-size:.95em}
+.total .money{font-size:calc(2.55em);font-weight:900;line-height:1.05;letter-spacing:-.02em;text-align:right;white-space:nowrap;overflow:hidden}
+.total .money small{font-size:.45em;font-weight:800;margin-left:4px}
+.total .words{font-size:.78em;font-weight:700;text-align:right;min-height:1.1em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Thanh dưới */
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:31;background:var(--paper);border-top:var(--bw) solid var(--line);
+  padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:1fr 84px 1fr;gap:10px;align-items:center}
+.bar .b{min-height:60px;border:var(--bw) solid var(--line);border-radius:var(--r);background:var(--paper);font-weight:900;font-size:1.05em}
+.bar .save{background:var(--ink);color:var(--paper)}
+.mic{width:76px;height:76px;margin-top:-30px;border-radius:50%;border:4px solid var(--line);background:var(--signal);color:var(--on-signal);display:grid;place-items:center;justify-self:center;box-shadow:0 0 0 4px var(--paper)}
+.mic svg{width:34px;height:34px}
+.mic svg path{fill:var(--on-signal)}
+.mic.on{background:var(--warn);animation:pulse 1s infinite}
+.mic.on svg path{fill:var(--on-color)}
+@keyframes pulse{0%{box-shadow:0 0 0 4px var(--paper),0 0 0 4px rgba(196,0,26,.6)}100%{box-shadow:0 0 0 4px var(--paper),0 0 0 18px rgba(196,0,26,0)}}
+.mic.cont::after{content:"∞";position:absolute;transform:translate(26px,-26px);background:var(--ink);color:var(--paper);border-radius:10px;padding:0 6px;font-size:.8em}
+
+/* Khung giọng nói */
+.voice{position:fixed;left:8px;right:8px;bottom:calc(196px + env(safe-area-inset-bottom,0px));z-index:40;max-width:560px;margin:0 auto;
+  background:var(--paper);border:4px solid var(--ink);border-radius:14px;padding:10px 12px;display:none;max-height:52vh;overflow:auto}
+.voice.on{display:block}
+.voice .st{display:flex;align-items:center;gap:8px;font-weight:800;font-size:.9em}
+.voice .st .x{margin-left:auto;min-width:44px;min-height:44px;border:var(--bw) solid var(--line);border-radius:8px;background:var(--paper);font-weight:900}
+.voice .heard{font-size:1.3em;font-weight:900;margin:6px 0;min-height:1.4em;word-break:break-word}
+.voice .heard.interim{color:var(--soft)}
+.voice .ans{font-weight:700;white-space:pre-line;margin:6px 0}
+.voice .ans.err{color:var(--warn)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.chips span{border:2px solid var(--ink);border-radius:8px;padding:3px 8px;font-weight:800;background:var(--hit)}
+.chips span.bad{background:var(--paper);border-color:var(--warn);color:var(--warn)}
+.confirm{display:none;gap:8px;margin:8px 0}
+.confirm.on{display:grid;grid-template-columns:1fr 1fr}
+.confirm button{min-height:54px;border:var(--bw) solid var(--line);border-radius:var(--r);font-weight:900;background:var(--paper)}
+.confirm button.yes{background:var(--warn);border-color:var(--warn);color:var(--on-color)}
+.cmd{display:grid;grid-template-columns:1fr auto;gap:6px;margin-top:8px}
+.cmd input{min-height:50px;border:var(--bw) solid var(--line);border-radius:var(--r);padding:4px 10px;font-weight:700;font-size:1em}
+.cmd button,.vtools button{min-height:50px;border:var(--bw) solid var(--line);border-radius:var(--r);background:var(--ink);color:var(--paper);font-weight:800;padding:0 14px}
+.vtools{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.vtools button{background:var(--paper);color:var(--ink);flex:1;min-width:110px}
+
+/* Bảng trượt */
+.sheet{position:fixed;inset:0;z-index:50;background:var(--paper);display:none;flex-direction:column}
+.sheet.on{display:flex}
+.sheet header{display:flex;align-items:center;gap:8px;padding:10px 12px;padding-top:calc(10px + env(safe-area-inset-top,0px));border-bottom:var(--bw) solid var(--line);position:sticky;top:0;background:var(--paper)}
+.sheet header h2{flex:1;margin:0;font-size:1.25em;font-weight:900}
+.sheet .body{flex:1;overflow:auto;padding:12px;padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+.sheet .body>*{max-width:560px;margin-left:auto;margin-right:auto}
+.daynav{display:grid;grid-template-columns:56px 1fr 56px;gap:8px;margin-bottom:10px}
+.daynav button,.daynav input{min-height:52px;border:var(--bw) solid var(--line);border-radius:var(--r);background:var(--paper);font-weight:900;font-size:1.05em;text-align:center}
+.filters{display:flex;gap:6px;margin-bottom:10px;overflow:auto}
+.filters button{min-height:44px;border:2px solid var(--line);border-radius:22px;background:var(--paper);font-weight:800;padding:0 14px;white-space:nowrap}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.rec{display:grid;grid-template-columns:44px 1fr auto;gap:4px 10px;border:var(--bw) solid var(--line);border-radius:var(--r);padding:10px;margin-bottom:8px;background:var(--paper);width:100%;text-align:left}
+.rec.sel{background:var(--hit)}
+.rec .no{grid-row:span 3;font-size:1.4em;font-weight:900;align-self:center;text-align:center}
+.rec .a{font-weight:900;font-size:1.05em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rec .b{font-weight:700;color:var(--soft)}
+.rec .m{font-weight:900;font-size:1.2em;text-align:right;white-space:nowrap}
+.rec .nt{justify-self:end;align-self:start;font-size:.8em;font-weight:900;padding:2px 8px;border-radius:6px;color:var(--on-color);background:var(--soft)}
+.rec .nt.cash{background:var(--cash)} .rec .nt.ck{background:var(--bank)} .rec .nt.debt{background:var(--debt)}
+.rec .del{grid-column:3;justify-self:end;min-height:40px;min-width:44px;border:2px solid var(--warn);color:var(--warn);background:var(--paper);border-radius:8px;font-weight:900}
+.sum{border:4px solid var(--ink);border-radius:var(--r);background:var(--signal);color:var(--on-signal);padding:10px 12px;display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-weight:800;margin-top:6px}
+.sum b{font-weight:900;text-align:right}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.btns button,.wbtn{min-height:52px;border:var(--bw) solid var(--line);border-radius:var(--r);background:var(--paper);font-weight:800}
+.wbtn{width:100%;margin-top:8px}
+.wbtn.dark{background:var(--ink);color:var(--paper)}
+.wbtn.danger{border-color:var(--warn);color:var(--warn)}
+.empty{border:var(--bw) dashed var(--line);border-radius:var(--r);padding:18px;text-align:center;font-weight:700}
+
+/* Cài đặt */
+.set h3{font-size:1.05em;font-weight:900;margin:18px 0 8px;padding-bottom:4px;border-bottom:var(--bw) solid var(--line)}
+.prices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tg{display:flex;align-items:center;gap:12px;min-height:56px;border-bottom:2px solid var(--line);font-weight:800}
+.tg input{width:30px;height:30px;accent-color:var(--ink)}
+.tg span{flex:1}
+.cust{border:var(--bw) solid var(--line);border-radius:var(--r);padding:10px;margin-bottom:8px;display:grid;grid-template-columns:1fr auto;gap:2px 8px}
+.cust b{font-size:1.05em;font-weight:900}
+.cust .p{grid-column:1;font-weight:700;color:var(--soft);font-size:.9em}
+.cust button{grid-row:1/span 3;grid-column:2;min-height:48px;min-width:64px;border:var(--bw) solid var(--line);border-radius:8px;background:var(--paper);font-weight:800;align-self:center}
+textarea.in{min-height:110px;font-size:1.1em;font-weight:700;font-family:var(--font)}
+.help h3{font-size:1.05em;font-weight:900;margin:16px 0 6px}
+.help button{display:block;width:100%;text-align:left;min-height:48px;border:0;border-bottom:2px solid var(--line);background:var(--paper);padding:8px 2px;font-weight:800}
+.help button span{display:block;font-weight:600;color:var(--soft);font-size:.9em}
+.help p{font-weight:600}
+.toast{position:fixed;left:50%;top:calc(8px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:60;background:var(--ink);color:var(--paper);font-weight:800;padding:12px 18px;border-radius:12px;max-width:92vw;display:none;text-align:center}
+.toast.on{display:block}
+.toast.err{background:var(--warn)}
+
+/* ---- Bảng màu ---- */
+body[data-theme="diu"]{--paper:#F1ECE1;--ink:#2B2721;--soft:#5C544A;--line:#3B352D;--signal:#E3C77E;--on-signal:#2B2721;--field:#E6DFD0;--hit:#EEDFB0;
+  --warn:#A8322D;--cash:#3F6B45;--bank:#34557F;--debt:#8A5A2B;--on-color:#FBF8F2}
+body[data-theme="xam"]{--paper:#E3E6E9;--ink:#1F2327;--soft:#4B5159;--line:#343A40;--signal:#B7CCDC;--on-signal:#1F2327;--field:#D3D8DD;--hit:#CADBE8;
+  --warn:#A33A36;--cash:#3E6B4F;--bank:#2F5275;--debt:#85572F;--on-color:#F4F6F8}
+body[data-theme="la"]{--paper:#E5ECE1;--ink:#1F2A20;--soft:#4A5A4B;--line:#2F3D30;--signal:#BFD6AE;--on-signal:#1F2A20;--field:#D5E0CF;--hit:#D3E5C3;
+  --warn:#A3372F;--cash:#35683F;--bank:#2F5470;--debt:#83562A;--on-color:#F3F7F1}
+body[data-theme="toi"]{--paper:#1C1E21;--ink:#E9E5DD;--soft:#B3AEA5;--line:#7A7E84;--signal:#C9A646;--on-signal:#15161A;--field:#282B2F;--hit:#3B3522;
+  --warn:#E07A6F;--cash:#6DB07E;--bank:#7FA6D6;--debt:#D9A066;--on-color:#15161A}
+body[data-theme="toi"] .in.flash{animation:flashd 1.2s ease-out}
+@keyframes flashd{0%{background:#5A4B1E}100%{background:var(--field)}}
+.themes{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.theme{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:10px;min-height:60px;padding:6px 10px;border:var(--bw) solid var(--line);border-radius:var(--r);background:var(--paper);text-align:left;font-weight:800}
+.theme[aria-pressed="true"]{outline:4px solid var(--ink);outline-offset:2px}
+.theme i{display:block;width:40px;height:40px;border-radius:8px;border:2px solid #555;background:linear-gradient(135deg,var(--a) 0 50%,var(--b) 50% 100%)}
+.theme small{display:block;font-weight:600;color:var(--soft);font-size:.8em}
+select.in{font-size:1em;font-weight:700}
+.vwarn{border:var(--bw) solid var(--warn);color:var(--warn);border-radius:var(--r);padding:10px 12px;font-weight:700;margin-top:8px;white-space:pre-line}
+.vok{border:var(--bw) solid var(--cash);color:var(--cash);border-radius:var(--r);padding:10px 12px;font-weight:800;margin-top:8px}
+.waitbar{display:none;gap:6px;overflow-x:auto;margin:0 0 10px;padding-bottom:2px}
+.waitbar.on{display:flex}
+.waitbar button{flex:0 0 auto;min-height:48px;border:var(--bw) dashed var(--line);border-radius:var(--r);background:var(--hit);font-weight:800;padding:4px 12px;text-align:left;line-height:1.2}
+.waitbar button small{display:block;font-weight:600;color:var(--soft)}
+.btns button.dark{background:var(--ink);color:var(--paper)}
+.daily{display:grid;gap:10px}
+.daily button{display:block;width:100%;text-align:left;min-height:64px;border:var(--bw) solid var(--line);border-radius:var(--r);background:var(--paper);padding:10px 14px;font-weight:900;font-size:1.1em}
+.daily button span{display:block;font-weight:600;font-size:.82em;color:var(--soft);margin-top:2px}
+.daily h3{margin:14px 0 0;font-size:1em;font-weight:900}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="brand"><b>Cân nhanh</b><small id="todayLbl"></small></div>
+  <button class="tbtn" id="btnDaily" aria-label="Thao tác hằng ngày">Ca</button>
+  <button class="tbtn" id="btnList" aria-label="Danh sách phiếu hôm nay">Hôm nay<span class="n" id="cnt">0</span></button>
+  <button class="tbtn" id="btnSet" aria-label="Cài đặt">⚙︎</button>
+</div>
+
+<main>
+  <div class="editing" id="editing">Đang sửa phiếu <span id="editNo"></span><button id="btnCancelEdit">Thôi sửa</button></div>
+
+  <div class="waitbar" id="waitBar"></div>
+  <div class="items" id="items" role="group" aria-label="Mặt hàng"></div>
+
+  <div class="blk">
+    <label class="f" for="plate">Biển số</label>
+    <input class="in" id="plate" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Gõ vài số, VD 784">
+    <div class="sug" id="sug"></div>
+  </div>
+  <div class="blk">
+    <label class="f" for="name">Khách hàng <span class="u">(gõ mã KH cũng được)</span></label>
+    <input class="in" id="name" autocomplete="off" placeholder="Tên hoặc mã khách">
+  </div>
+
+  <div class="row">
+    <div>
+      <label class="f" for="gross">KL xe hàng <span class="u">(vô)</span></label>
+      <input class="in big" id="gross" inputmode="numeric" autocomplete="off" placeholder="0">
+    </div>
+    <div>
+      <label class="f" for="tare">KL xe <span class="u">(ra)</span></label>
+      <input class="in big" id="tare" inputmode="numeric" autocomplete="off" placeholder="0">
+    </div>
+  </div>
+  <div class="hint" id="wHint" style="margin:-6px 0 10px"></div>
+
+  <div class="blk">
+    <label class="f">Tạp chất <span class="u">(% · kg trừ thêm)</span></label>
+    <div class="tc">
+      <button class="chip" data-tc="0">0</button>
+      <button class="chip" data-tc="1">1%</button>
+      <button class="chip" data-tc="2">2%</button>
+      <button class="chip" data-tc="3">3%</button>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <input class="in" id="tcPct" inputmode="decimal" placeholder="%" aria-label="Tạp chất phần trăm">
+        <input class="in" id="tcKg" inputmode="numeric" placeholder="+kg" aria-label="Tạp chất thêm kg">
+      </div>
+    </div>
+  </div>
+
+  <div class="blk">
+    <label class="f" for="price">Đơn giá <span class="u">(đ/kg)</span></label>
+    <input class="in big" id="price" inputmode="numeric" autocomplete="off" placeholder="0">
+    <div class="hint" id="pHint"></div>
+  </div>
+
+  <div class="blk">
+    <label class="f">Thanh toán</label>
+    <div class="pay" id="pay">
+      <button data-k="cash">Tiền mặt</button>
+      <button data-k="ck">Chuyển khoản</button>
+      <button data-k="debt">Chưa trả</button>
+    </div>
+    <input class="in" id="note" style="font-size:1.05em" placeholder="Ghi chú thêm">
+  </div>
+
+  <dl class="steps" id="steps"></dl>
+</main>
+
+<div class="total" aria-live="polite">
+  <div class="in2">
+    <div class="l1"><span id="tItem">—</span><span id="tCalc"></span></div>
+    <div class="money" id="tMoney">0<small>đ</small></div>
+    <div class="words" id="tWords"></div>
+  </div>
+</div>
+
+<div class="bar">
+  <button class="b" id="btnClear">Làm lại</button>
+  <button class="mic" id="btnMic" aria-label="Nói lệnh">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3.5 3.5 0 0 0 3.5-3.5v-6a3.5 3.5 0 1 0-7 0v6A3.5 3.5 0 0 0 12 15Zm6-3.5a1 1 0 1 0-2 0 4 4 0 0 1-8 0 1 1 0 1 0-2 0 6 6 0 0 0 5 5.91V20H8.5a1 1 0 1 0 0 2h7a1 1 0 1 0 0-2H13v-2.59A6 6 0 0 0 18 11.5Z"/></svg>
+  </button>
+  <button class="b save" id="btnSave">Lưu phiếu</button>
+</div>
+
+<section class="voice" id="voice" aria-live="polite">
+  <div class="st"><span id="vStatus">Bấm micro rồi nói</span><button class="x" id="vClose" aria-label="Đóng">✕</button></div>
+  <div class="heard" id="vHeard"></div>
+  <div class="chips" id="vChips"></div>
+  <div class="ans" id="vAns"></div>
+  <div class="confirm" id="vConfirm"><button class="yes" id="vYes">Chắc, xóa</button><button id="vNo">Không</button></div>
+  <div class="cmd"><input id="vInput" placeholder="Hoặc gõ lệnh, VD: xe vô 3200 xe ra 2200" enterkeyhint="send"><button id="vSend">Chạy</button></div>
+  <div class="vtools"><button id="vUndo">Hoàn tác</button><button id="vHelp">Câu lệnh</button><button id="vCont">Rảnh tay: tắt</button></div>
+</section>
+
+<section class="sheet" id="shList" aria-label="Danh sách phiếu">
+  <header><h2>Phiếu đã lưu</h2><button class="tbtn" data-close>Đóng</button></header>
+  <div class="body">
+    <div class="daynav"><button id="dPrev" aria-label="Ngày trước">‹</button><input type="date" id="dPick"><button id="dNext" aria-label="Ngày sau">›</button></div>
+    <div class="filters" id="lFilter">
+      <button data-f="all" aria-pressed="true">Tất cả</button><button data-f="debt">Chưa trả</button><button data-f="cash">Tiền mặt</button><button data-f="ck">Chuyển khoản</button>
+    </div>
+    <div id="lRows"></div>
+    <div id="lSum"></div>
+    <div class="btns"><button id="lCopy">Copy gửi Zalo</button><button id="lToday">Về hôm nay</button></div>
+  </div>
+</section>
+
+<section class="sheet" id="shSet" aria-label="Cài đặt">
+  <header><h2>Cài đặt</h2><button class="tbtn" data-close>Đóng</button></header>
+  <div class="body set">
+    <div>
+      <h3>Giá hiện tại (đ/kg)</h3>
+      <div class="prices" id="sPrices"></div>
+      <h3>Màu giao diện</h3>
+      <div class="themes" id="sThemes"></div>
+      <h3>Giọng đọc tiếng Việt</h3>
+      <label class="tg"><span>Đọc to kết quả</span><input type="checkbox" id="sTts"></label>
+      <label class="f" for="sVoice" style="margin-top:10px">Giọng đọc</label>
+      <select class="in" id="sVoice"></select>
+      <label class="f" for="sRate" style="margin-top:10px">Tốc độ đọc</label>
+      <select class="in" id="sRate"><option value="0.85">Chậm</option><option value="1">Vừa</option><option value="1.15">Nhanh</option></select>
+      <label class="tg"><span>Máy không có giọng Việt thì đọc qua mạng (Google)</span><input type="checkbox" id="sNet"></label>
+      <div id="sVoiceInfo"></div>
+      <button class="wbtn dark" id="sTestVoice">Thử giọng đọc</button>
+      <h3>Giọng Ngọc Huyền (HuggingFace)</h3>
+      <div id="pkStatus" class="vwarn"></div>
+      <label class="tg"><span>Ưu tiên đọc bằng giọng Ngọc Huyền</span><input type="checkbox" id="pkUse"></label>
+      <p class="hint">Cách 1 — tạo thẳng từ Space trên HuggingFace (cần mạng, mỗi câu vài giây; làm một lần, sau đó đọc không cần mạng):</p>
+      <label class="f" for="pkSpace">Space</label>
+      <input class="in" id="pkSpace" style="font-size:1em" autocapitalize="off" spellcheck="false">
+      <div class="row" style="margin-top:8px"><div><label class="f" for="pkToken">HF token <span class="u">(nên có)</span></label><input class="in" id="pkToken" type="password" style="font-size:1em" autocapitalize="off" placeholder="hf_…"></div>
+      <div><label class="f" for="pkEp">Endpoint <span class="u">(để trống = tự dò)</span></label><input class="in" id="pkEp" style="font-size:1em" autocapitalize="off" placeholder="/generate"></div></div>
+      <div class="btns"><button id="pkTest">Thử 1 câu</button><button id="pkGen" class="dark">Tạo bộ giọng</button></div>
+      <div class="hint" id="pkProg"></div>
+      <p class="hint">Cách 2 — nạp file .zip đã tạo sẵn (bằng script Python gửi kèm), hoặc dán link .zip trên HuggingFace / GitHub Pages:</p>
+      <div class="btns"><button id="pkFileBtn">Nạp file .zip</button><button id="pkVocab">Tải danh sách câu</button></div>
+      <input type="file" id="pkFile" accept=".zip,audio/*" multiple hidden>
+      <div class="cmd"><input id="pkUrl" placeholder="https://huggingface.co/…/resolve/main/ngochuyen.zip" autocapitalize="off"><button id="pkUrlBtn">Nạp</button></div>
+      <button class="wbtn" id="pkTry">Nghe thử giọng Ngọc Huyền</button>
+      <button class="wbtn danger" id="pkClear">Xóa bộ giọng</button>
+      <h3>Nhận giọng nói</h3>
+      <label class="tg"><span>Máy nghe ra "3002" thì hiểu là ba ngàn hai (3.200)</span><input type="checkbox" id="sFix"></label>
+      <h3>Hiển thị</h3>
+      <label class="tg"><span>Nghe liên tục (rảnh tay)</span><input type="checkbox" id="sCont"></label>
+      <label class="tg"><span>Tương phản cao (viền, chữ đậm hơn)</span><input type="checkbox" id="sHc"></label>
+      <label class="tg"><span>Tự lưu khách mới khi lưu phiếu</span><input type="checkbox" id="sAutoCust"></label>
+      <div class="btns"><button id="sSmall">Chữ nhỏ hơn</button><button id="sBig">Chữ to hơn</button></div>
+      <h3>Khách hàng</h3>
+      <input class="in" id="sFind" placeholder="Tìm tên, mã, biển số" style="font-size:1.05em;margin-bottom:8px">
+      <button class="wbtn dark" id="sAddCust">+ Thêm khách</button>
+      <div id="sCusts" style="margin-top:8px"></div>
+      <h3>Sao lưu</h3>
+      <div class="btns"><button id="sExport">Xuất file JSON</button><button id="sImport">Nhập file JSON</button></div>
+      <input type="file" id="sFile" accept=".json,application/json" hidden>
+      <button class="wbtn danger" id="sWipe">Xóa toàn bộ dữ liệu</button>
+      <p class="hint" style="margin-top:14px">Dữ liệu chỉ nằm trong trình duyệt của máy này. Nên xuất file JSON sao lưu mỗi tuần.</p>
+    </div>
+  </div>
+</section>
+
+<section class="sheet" id="shCust" aria-label="Sửa khách hàng">
+  <header><h2 id="cTitle">Khách hàng</h2><button class="tbtn" data-close>Đóng</button></header>
+  <div class="body set">
+    <div>
+      <div class="row"><div><label class="f" for="cCode">Mã KH</label><input class="in" id="cCode" autocapitalize="characters"></div>
+      <div><label class="f" for="cName">Tên khách</label><input class="in" id="cName"></div></div>
+      <label class="f" for="cPlates">Biển số và KL xe mặc định <span class="u">(mỗi dòng 1 xe, VD: 61C78412 2200)</span></label>
+      <textarea class="in" id="cPlates"></textarea>
+      <label class="tg"><span>Áp dụng trợ giá cho khách này</span><input type="checkbox" id="cSubOn"></label>
+      <div class="prices" id="cSubs" style="margin-top:8px"></div>
+      <label class="f" for="cNote" style="margin-top:12px">Ghi chú (STK, ngân hàng…)</label>
+      <input class="in" id="cNote" style="font-size:1.05em">
+      <button class="wbtn dark" id="cSave">Lưu khách</button>
+      <button class="wbtn danger" id="cDel">Xóa khách</button>
+    </div>
+  </div>
+</section>
+
+<section class="sheet" id="shDaily" aria-label="Thao tác hằng ngày">
+  <header><h2>Thao tác hằng ngày</h2><button class="tbtn" data-close>Đóng</button></header>
+  <div class="body"><div id="dBody"></div></div>
+</section>
+
+<section class="sheet" id="shHelp" aria-label="Danh sách câu lệnh">
+  <header><h2>Câu lệnh giọng nói</h2><button class="tbtn" data-close>Đóng</button></header>
+  <div class="body help"><div id="hBody"></div></div>
+</section>
+
+<div class="toast" id="toast" role="status"></div>
+<script>
+/* ===== BỘ HIỂU CÂU TIẾNG VIỆT (thuần logic) ===== */
+const strip = s => [...String(s)].map(c => (c === 'đ' || c === 'Đ') ? 'd' : c.normalize('NFD').replace(/[\u0300-\u036f]/g, '')).join('').toLowerCase();
+
+const DW = {'không':0,'một':1,'mốt':1,'hai':2,'ba':3,'bốn':4,'tư':4,'năm':5,'lăm':5,'nhăm':5,'sáu':6,'bảy':7,'bẩy':7,'tám':8,'chín':9};
+const DW_STRONG = new Set(['một','hai','ba','bốn','năm','sáu','bảy','bẩy','tám','chín']);
+const SW = {'khong':0,'mot':1,'hai':2,'ba':3,'bon':4,'tu':4,'nam':5,'lam':5,'sau':6,'bay':7,'tam':8,'chin':9};
+const SW_STRONG = new Set(['hai','ba','bon','mot','chin']);
+const NAME_PREFIX = new Set(['anh','chi','co','chu','bac','ong','em','a','c','thim','di','cau','mo','ba','o','dung','ut','u','cau']);
+const UNITS = new Set(['ky','ki','kg','kilo','kilogam','kgs']);
+const NUMERAL = /^\d+(?:[.,]\d+)*(?:k\d*)?$/i;
+
+function parseNumeral(raw) {
+  let s = raw.toLowerCase();
+  const km = s.match(/^([\d.,]+)k(\d*)$/);
+  if (km) {
+    const base = parseNumeral(km[1]).v * 1000;
+    const tail = km[2] ? parseInt(km[2].padEnd(3, '0').slice(0, 3), 10) : 0;
+    return { v: base + tail, len: 4 };
+  }
+  if (/^\d{1,3}(?:[.,]\d{3})+$/.test(s)) { const v = parseInt(s.replace(/[.,]/g, ''), 10); return { v, len: String(v).length }; }
+  if (/[.,]/.test(s)) { const v = parseFloat(s.replace(',', '.')); return { v, len: 2, dec: true }; }
+  return { v: parseInt(s, 10), len: s.length };
+}
+
+function numInfo(w) {
+  if (w == null) return null;
+  if (NUMERAL.test(w)) { const p = parseNumeral(w); return { t: 'd', v: p.v, len: p.len, num: true, strong: true, raw: w }; }
+  if (w in DW) return { t: 'd', v: DW[w], len: 1, strong: DW_STRONG.has(w) };
+  switch (w) {
+    case 'mười': return { t: 'ten', strong: true };
+    case 'mươi': case 'chục': return { t: 'm', v: 10 };
+    case 'trăm': return { t: 'm', v: 100 };
+    case 'nghìn': case 'ngàn': case 'ngìn': case 'k': case 'ka': case 'tấn': return { t: 'm', v: 1000 };
+    case 'triệu': return { t: 'm', v: 1e6 };
+    case 'linh': case 'lẻ': return { t: 'linh' };
+    case 'rưỡi': case 'rưởi': return { t: 'half' };
+    case 'chấm': case 'phẩy': case 'phết': return { t: 'dot' };
+  }
+  const s = strip(w);
+  if (s in SW) return { t: 'd', v: SW[s], len: 1, strong: SW_STRONG.has(s) };
+  switch (s) {
+    case 'muoi': return { t: 'ambig' };
+    case 'chuc': return { t: 'm', v: 10 };
+    case 'tram': return { t: 'm', v: 100 };
+    case 'nghin': case 'ngan': return { t: 'm', v: 1000 };
+    case 'tan': return { t: 'mw', v: 1000 };
+    case 'trieu': return { t: 'm', v: 1e6 };
+    case 'linh': case 'le': return { t: 'linh' };
+    case 'ruoi': return { t: 'half' };
+    case 'cham': case 'phay': return { t: 'dot' };
+  }
+  return null;
+}
+
+function tens(ts) {
+  let a = ts.slice();
+  if (a.length && a[0].t === 'linh') a = a.slice(1);
+  if (!a.length) return { v: 0 };
+  const [x, y, z] = a;
+  if (a.length === 1) { if (x.t === 'ten') return { v: 10 }; if (x.t === 'd') return { v: x.v }; if (x.t === 'half') return { v: 5 }; }
+  if (x.t === 'ten') { if (y && y.t === 'd') return { v: 10 + y.v }; return { v: 10 }; }
+  if (x.t === 'd' && y && y.t === 'm' && y.v === 10) { return { v: x.v * 10 + (z && z.t === 'd' ? z.v : 0) }; }
+  if (x.t === 'd' && y && y.t === 'd' && !x.num && !y.num) return { v: x.v * 10 + y.v, colloq: true };
+  if (x.t === 'd' && y && y.t === 'half') return { v: x.v + 0.5 };
+  let v = 0; for (const t of a) if (t.t === 'd') v = v * 10 + t.v; return { v };
+}
+
+function small(ts) {
+  const hi = ts.findIndex(t => t.t === 'm' && t.v === 100);
+  if (hi < 0) return tens(ts);
+  const before = ts.slice(0, hi), rest = ts.slice(hi + 1);
+  const h = before.length ? tens(before).v : 1;
+  let r = 0;
+  if (!rest.length) r = 0;
+  else if (rest.length === 1 && rest[0].t === 'half') r = 50;
+  else if (rest.length === 1 && rest[0].t === 'd' && rest[0].len === 1) r = rest[0].v * 10;
+  else r = tens(rest).v;
+  return { v: h * 100 + r };
+}
+
+function evalInt(ts) {
+  let total = 0, buf = [], lastBig = 0, colloq = false;
+  for (const x of ts) {
+    if (x.t === 'm' && x.v >= 1000) {
+      total += (buf.length ? small(buf).v : 1) * x.v; lastBig = x.v; buf = [];
+    } else buf.push(x);
+  }
+  if (buf.length) {
+    if (!lastBig) { const r = small(buf); total += r.v; colloq = !!r.colloq; }
+    else {
+      const hasHundred = buf.some(t => t.t === 'm' && t.v === 100);
+      if (buf.length === 1 && buf[0].t === 'half') total += lastBig / 2;
+      else if (!hasHundred && buf[0].t === 'd' && buf[0].len === 1) {
+        const rest = buf.slice(1);
+        total += buf[0].v * lastBig / 10;
+        if (rest.length === 1 && rest[0].t === 'half') total += lastBig / 20;
+        else if (rest.length) total += tens(rest).v * lastBig / 1000;
+      } else total += small(buf).v * lastBig / 1000;
+    }
+  }
+  return { v: total, colloq };
+}
+
+function evalRun(run) {
+  const di = run.findIndex(x => x.t === 'dot');
+  if (di < 0) return evalInt(run);
+  let intPart = run.slice(0, di), after = run.slice(di + 1), mult = 1;
+  if (after.length && after[after.length - 1].t === 'm' && after[after.length - 1].v >= 1000) { mult = after[after.length - 1].v; after = after.slice(0, -1); }
+  const frac = after.filter(x => x.t === 'd').map(x => x.num ? String(x.raw).replace(/\D/g, '') : String(x.v)).join('');
+  const iv = evalInt(intPart).v;
+  return { v: parseFloat(iv + '.' + (frac || '0')) * mult };
+}
+
+/* Tách câu thành từ + số */
+const VOICE_FIX = { on: true };
+/* Máy nghe hay ghi "ba ngàn hai" thành 3002, "tám trăm tư" thành 804 → sửa lại cách nói tắt */
+function fixColloq(v) {
+  if (!Number.isInteger(v)) return v;
+  if (v >= 1000 && v < 100000) { const r = v % 1000; if (r > 0 && r < 10) return Math.floor(v / 1000) * 1000 + r * 100; }
+  if (v >= 101 && v <= 909) { const t = Math.floor(v / 10) % 10, u = v % 10; if (t === 0 && u > 0) return Math.floor(v / 100) * 100 + u * 10; }
+  return v;
+}
+function tokenize(text, voice) {
+  let t = String(text).normalize('NFC').toLowerCase();
+  t = t.replace(/phần trăm|phan tram/g, ' % ').replace(/%/g, ' % ');
+  t = t.replace(/[;!?\n]/g, ' , ').replace(/,(?!\d)|(?<!\d),/g, ' , ').replace(/\.(?!\d)|(?<!\d)\./g, ' ');
+  t = t.replace(/[-–—:"“”()]/g, ' ').replace(/(\d)\s+k(?![\p{L}\d])/gu, '$1k');
+  const words = t.split(/\s+/).filter(Boolean);
+  const out = [];
+  let i = 0;
+  while (i < words.length) {
+    const w = words[i];
+    if (w === ',') { out.push({ k: 'sep' }); i++; continue; }
+    if (w === '%') { const last = out[out.length - 1]; if (last && last.k === 'num') last.pct = true; i++; continue; }
+    const info = numInfo(w);
+    const prev = out.length ? out[out.length - 1] : null;
+    const prevS = prev && prev.k === 'w' ? prev.s : '';
+    const canStart = info && ((info.t === 'd' && info.strong) || info.t === 'ten') && !(NAME_PREFIX.has(prevS) && !info.num);
+    if (canStart) {
+      const run = [info.t === 'ambig' ? { t: 'ten' } : info];
+      let j = i + 1, cham = false, afterDot = false;
+      while (j < words.length) {
+        let nx = numInfo(words[j]);
+        if (!nx) break;
+        const last = run[run.length - 1];
+        if (nx.t === 'ambig') nx = last.t === 'd' ? { t: 'm', v: 10 } : { t: 'ten' };
+        if (nx.t === 'mw') { if (last.t === 'd') nx = { t: 'm', v: 1000 }; else break; }
+        if (nx.t === 'dot') {
+          const nn = numInfo(words[j + 1]);
+          if (nn && nn.t === 'd' && !afterDot) { run.push(nx); afterDot = true; j++; continue; }
+          cham = true; j++; break;
+        }
+        if (nx.t === 'linh') { const nn = numInfo(words[j + 1]); if (nn && nn.t === 'd') { run.push(nx); j++; continue; } break; }
+        if (nx.t === 'd') {
+          if (nx.num && last.t === 'd' && last.num) break;
+          if (nx.v === 0 && !nx.num) { const nn = numInfo(words[j + 1]); if (!(nn && nn.t === 'm' && nn.v === 100)) break; }
+          if (!afterDot && last.t === 'd' && run.length >= 2 && run[run.length - 2].t === 'd') break;
+          if (!afterDot && last.t === 'd' && last.num && !nx.num) {
+            // "3 ngàn 2" ok (có hệ số ở giữa) — còn "3200 hai" thì tách
+            break;
+          }
+        }
+        if (nx.t === 'm' && last.t === 'm' && last.v === nx.v) break;
+        if (nx.t === 'ten' && last.t === 'd' && !run.some(r => r.t === 'm')) break;
+        run.push(nx); j++;
+      }
+      const r = evalRun(run);
+      let fixFrom = null;
+      if (voice && VOICE_FIX.on && run.length === 1 && run[0].num) { const f = fixColloq(r.v); if (f !== r.v) { fixFrom = r.v; r.v = f; } }
+      const tok = { k: 'num', v: r.v, colloq: !!r.colloq, cham, raw: words.slice(i, j).join(' '), fixFrom };
+      const allDigitWords = run.every(x => x.t === 'd');
+      tok.spoken = allDigitWords && run.length > 1 && !run.some(x => x.num);
+      tok.digits = allDigitWords ? run.map(x => x.num ? String(x.raw).replace(/\D/g, '') : String(x.v)).join('') : String(Math.round(r.v));
+      if (words[j] === '%') { tok.pct = true; j++; }
+      out.push(tok); i = j; continue;
+    }
+    const s = strip(w);
+    if (UNITS.has(s)) { out.push({ k: 'unit' }); i++; if (words[i] && strip(words[i]) === 'lo') i++; continue; }
+    out.push({ k: 'w', raw: w, s });
+    i++;
+  }
+  return out;
+}
+
+function canonOf(tokens) {
+  return tokens.map(t => {
+    if (t.k === 'w') return t.s;
+    if (t.k === 'sep') return ',';
+    if (t.k === 'unit') return 'ky';
+    if (t.k === 'num') {
+      let v = t.spoken ? t.digits : String(Math.round(t.v * 1000) / 1000);
+      return v + (t.pct ? '%' : '');
+    }
+    return '';
+  }).join(' ').replace(/\s+/g, ' ').trim();
+}
+
+/* ===== TỪ KHÓA ===== */
+const KW = [
+  // mặt hàng
+  ['sat dac', 'item', 'satdac'], ['dac', 'item', 'satdac'], ['sat vun', 'item', 'sat'], ['sat', 'item', 'sat'],
+  ['tole', 'item', 'tole'], ['tol', 'item', 'tole'], ['ton', 'item', 'tole', ['tồn', 'tốn', 'tôn trọng']], ['ton tam', 'item', 'tole'],
+  ['vo lon', 'item', 'lon'], ['lon nhom', 'item', 'lon'], ['lon bia', 'item', 'lon'], ['lon', 'item', 'lon', ['lớn']], ['nhom', 'item', 'lon'],
+  ['mat hang', 'noop'], ['loai', 'noop'],
+  // biển số
+  ['bien so xe', 'plate'], ['bien so', 'plate'], ['so xe', 'plate'], ['bien', 'plate'], ['xe so', 'plate'], ['xe', 'plateXe'],
+  // khối lượng
+  ['khoi luong xe hang', 'gross'], ['kl xe hang', 'gross'], ['xe hang', 'gross'], ['xe vo', 'gross'], ['xe vao', 'gross'], ['can vo', 'gross'], ['can vao', 'gross'],
+  ['tong can', 'gross'], ['can tong', 'gross'], ['xe day', 'gross'], ['vo', 'gross'], ['vao', 'gross'], ['luc vo', 'gross'],
+  ['khoi luong xe', 'tare'], ['kl xe', 'tare'], ['xe ra', 'tare'], ['can ra', 'tare'], ['xe khong', 'tare'], ['xe rong', 'tare'], ['xac xe', 'tare'],
+  ['tru bi', 'tare'], ['bi', 'tare'], ['ra', 'tare'], ['luc ra', 'tare'],
+  ['khoi luong hang', 'net'], ['kl hang', 'net'], ['hang', 'net'], ['can le', 'netLe'], ['hang le', 'netLe'], ['mua le', 'netLe'],
+  // tạp chất
+  ['khong tap chat', 'noTc'], ['bo tap chat', 'noTc'], ['khong tru', 'noTc'], ['tap chat bang khong', 'noTc'],
+  ['tap chat them', 'tcKg'], ['tc them', 'tcKg'], ['tap chat roi', 'tcKg'], ['tru them', 'tcKg'], ['cong them', 'tcKg'], ['tru', 'tcKg'], ['cong', 'tcKg'], ['them', 'tcKg'], ['bot', 'tcKg'],
+  ['tru tap chat', 'tc'], ['tap chat', 'tc'], ['tap', 'tc'], ['tc', 'tc'],
+  // giá
+  ['gia hien tai', 'priceNow'], ['gia chuan', 'priceNow'], ['gia mac dinh', 'priceNow'], ['gia cu', 'priceNow'], ['gia goc', 'priceNow'],
+  ['tang gia', 'priceUp'], ['cong gia', 'priceUp'], ['them gia', 'priceUp'], ['nang gia', 'priceUp'], ['bu gia', 'priceUp'], ['tro gia', 'priceUp'],
+  ['giam gia', 'priceDown'], ['tru gia', 'priceDown'], ['bot gia', 'priceDown'], ['ha gia', 'priceDown'],
+  ['don gia', 'price'], ['gia la', 'price'], ['gia', 'price'],
+  // khách
+  ['khach vang lai', 'nameLe'], ['khach le', 'nameLe'], ['khach hang', 'name'], ['ten khach', 'name'], ['khach', 'name'], ['ten', 'name'], ['chu xe', 'name'], ['cua', 'name'],
+  // thanh toán
+  ['tien mat', 'note', 'cash'], ['tra tien mat', 'note', 'cash'], ['da tra', 'note', 'cash'], ['tra roi', 'note', 'cash'], ['tra lien', 'note', 'cash'],
+  ['chuyen khoan', 'note', 'ck'], ['da chuyen', 'note', 'ck'], ['ck', 'note', 'ck'], ['bank', 'note', 'ck'],
+  ['chua tra', 'note', 'debt'], ['chua thanh toan', 'note', 'debt'], ['ghi no', 'note', 'debt'], ['no', 'note', 'debt'], ['thieu', 'note', 'debt'], ['tra sau', 'note', 'debt'],
+  ['ghi chu', 'noteFree'],
+  // xe chờ cân ra
+  ['de cho can ra', 'park'], ['cho can ra', 'park'], ['can ra sau', 'park'], ['de cho', 'park'], ['cho ra', 'park'], ['can sau', 'park'], ['de do', 'park'], ['cho do', 'park'], ['xuong hang', 'park'],
+  // giống lần trước
+  ['giong lan truoc', 'likeLast'], ['nhu lan truoc', 'likeLast'], ['y nhu cu', 'likeLast'], ['nhu cu', 'likeLast'], ['nhu moi lan', 'likeLast'], ['giong hom truoc', 'likeLast'],
+  // hành động
+  ['luu va tao moi', 'save'], ['luu phieu', 'save'], ['luu lai', 'save'], ['chot phieu', 'save'], ['luu', 'save'], ['xong', 'save'], ['ghi so', 'save'],
+  ['tao dong moi', 'new'], ['tao moi', 'new'], ['phieu moi', 'new'], ['xe moi', 'new'], ['xe khac', 'new'], ['lam moi', 'new'],
+  ['xoa form', 'new'], ['lam lai', 'new'], ['xoa het', 'new'], ['xoa trang', 'new'],
+];
+KW.forEach(k => { k.words = k[0].split(' '); });
+KW.sort((a, b) => b.words.length - a.words.length);
+const NAMEOK = new Set(['dac', 'ton', 'bi', 'no', 'cong', 'hang', 'them', 'tru', 'bien', 'tro', 'cua', 'loai', 'tap', 'bot', 'ra', 'vo', 'vao', 'thieu', 'ten', 'chuyen']);
+
+function kwAt(tokens, i) {
+  for (const k of KW) {
+    const n = k.words.length;
+    let ok = true;
+    for (let a = 0; a < n; a++) {
+      const t = tokens[i + a];
+      if (!t || t.k !== 'w' || t.s !== k.words[a]) { ok = false; break; }
+    }
+    if (!ok) continue;
+    if (k[3]) { const rawSeq = tokens.slice(i, i + n + 1).map(t => t.raw || '').join(' '); if (k[3].some(bad => rawSeq.startsWith(bad) || tokens[i].raw === bad)) continue; }
+    return k;
+  }
+  return null;
+}
+
+function markKeywords(tokens) {
+  const out = [];
+  let i = 0;
+  while (i < tokens.length) {
+    const t = tokens[i];
+    if (t.k !== 'w') { out.push(t); i++; continue; }
+    const k = kwAt(tokens, i);
+    if (!k) { out.push(t); i++; continue; }
+    const n = k.words.length, type = k[1];
+    let j = i + n;
+    if (type === 'plate' || type === 'plateXe') {
+      let col = '';
+      while (j < tokens.length) {
+        const x = tokens[j];
+        if (x.k === 'num') {
+          const add = x.digits || String(Math.round(x.v));
+          if (col && !/[a-z]/i.test(col) && add.length > 3) break;
+          if ((col + add).length > 10) break;
+          col += add; j++; continue;
+        }
+        if (x.k === 'w' && col && col.length < 10) { const ni = numInfo(x.raw); if (ni && ni.t === 'd' && !ni.num) { col += String(ni.v); j++; continue; } }
+        if (x.k === 'w' && ((/\d/.test(x.s) && /^[a-z0-9]{2,6}$/.test(x.s)) || (/^[a-z]$/.test(x.s) && col.length >= 2 && col.length <= 3 && !/[a-z]/.test(col)))) { col += x.s; j++; continue; }
+        break;
+      }
+      if (!col) { i = type === 'plateXe' ? i + 1 : j; continue; }
+      out.push({ k: 'kw', type: 'plate', value: col.toUpperCase() }); i = j; continue;
+    }
+    if (type === 'name') {
+      const parts = [];
+      while (j < tokens.length && parts.length < 6) {
+        const x = tokens[j];
+        if (x.k !== 'w') break;
+        const kk = kwAt(tokens, j);
+        if (kk && !(kk.words.length === 1 && NAMEOK.has(x.s) && parts.length === 0)) {
+          if (!(kk.words.length === 1 && NAMEOK.has(x.s))) break;
+          // từ trùng tên (VD "Công") — chỉ nhận là tên nếu từ sau không phải số
+          const nx = tokens[j + 1]; if (nx && nx.k === 'num') break;
+        }
+        parts.push(x.raw); j++;
+      }
+      if (!parts.length) { i = j; continue; }
+      out.push({ k: 'kw', type: 'name', value: parts.join(' ') }); i = j; continue;
+    }
+    if (type === 'noteFree') {
+      const parts = [];
+      while (j < tokens.length && tokens[j].k !== 'sep') { const x = tokens[j]; parts.push(x.k === 'w' ? x.raw : x.k === 'num' ? x.raw : x.k === 'unit' ? 'kg' : ''); j++; }
+      out.push({ k: 'kw', type: 'noteFree', value: parts.join(' ').trim() }); i = j; continue;
+    }
+    out.push({ k: 'kw', type, arg: k[2] }); i = j;
+  }
+  return out;
+}
+
+function normPrice(tok) {
+  const v = tok.v;
+  if (tok.colloq) return Math.floor(v / 10) * 1000 + (v % 10) * 100;
+  if (v > 0 && v < 100) return Math.round(v * 1000);
+  return Math.round(v);
+}
+
+/* Diễn giải chuỗi token → danh sách thao tác (không đụng giao diện) */
+function interpret(tokens, form) {
+  const ops = [];
+  let pending = null, lastSlot = null;
+  const empty = f => form[f] === '' || form[f] == null;
+  for (let i = 0; i < tokens.length; i++) {
+    const t = tokens[i];
+    if (t.k === 'sep') { pending = null; continue; }
+    if (t.k === 'kw') {
+      switch (t.type) {
+        case 'item': ops.push(['item', t.arg]); if (!['gross', 'tare', 'net', 'netLe', 'price'].includes(pending)) pending = 'itemTc'; break;
+        case 'plate': ops.push(['plate', t.value]); pending = null; break;
+        case 'name': ops.push(['name', t.value]); pending = null; break;
+        case 'nameLe': ops.push(['name', 'Khách lẻ']); pending = null; break;
+        case 'noTc': ops.push(['tcPct', 0]); ops.push(['tcKg', 0]); pending = null; break;
+        case 'priceNow': ops.push(['priceNow']); pending = null; break;
+        case 'note': ops.push(['note', t.arg]); break;
+        case 'noteFree': ops.push(['noteFree', t.value]); break;
+        case 'save': ops.push(['save']); break;
+        case 'new': ops.push(['new']); pending = null; break;
+        case 'noop': break;
+        case 'park': ops.push(['park']); pending = null; break;
+        case 'likeLast': ops.push(['likeLast']); pending = null; break;
+        case 'tcKg':
+          // "thêm lon" → không phải tạp chất
+          if (tokens[i + 1] && tokens[i + 1].k === 'kw' && tokens[i + 1].type === 'item') break;
+          pending = 'tcKg'; break;
+        default: pending = t.type;
+      }
+      continue;
+    }
+    if (t.k !== 'num') continue;
+    const next = tokens[i + 1];
+    const unit = next && next.k === 'unit';
+    let slot = pending;
+    if (slot === 'itemTc') slot = (t.v < 20 || t.pct || t.cham) ? 'tc' : null;
+    if (!slot) {
+      if (t.pct || t.cham) slot = 'tc';
+      else if (unit && t.v < 500 && ['tc', 'itemTc', 'tcKg'].includes(lastSlot)) slot = 'tcKg';
+      else if (t.v < 20 && !unit) slot = 'tc';
+      else if (t.v >= 20) {
+        const f = { ...form };
+        ops.forEach(o => { if (['gross', 'tare', 'price'].includes(o[0])) f[o[0]] = o[1]; });
+        slot = f.gross === '' ? 'gross' : f.tare === '' ? 'tare' : f.price === '' ? 'price' : null;
+        if (!slot) { ops.push(['unknown', t.raw]); continue; }
+      }
+    }
+    if (slot === 'tc' && unit && !t.pct && !t.cham) slot = 'tcKg';
+    switch (slot) {
+      case 'gross': ops.push(['gross', Math.round(t.v)]); break;
+      case 'tare': ops.push(['tare', Math.round(t.v)]); break;
+      case 'net': ops.push(['net', Math.round(t.v)]); break;
+      case 'netLe': ops.push(['tare', 0]); ops.push(['gross', Math.round(t.v)]); break;
+      case 'tc': ops.push(['tcPct', Math.round(t.v * 100) / 100]); break;
+      case 'tcKg': ops.push(['tcKg', Math.round(t.v)]); break;
+      case 'price': ops.push(['price', normPrice(t)]); break;
+      case 'priceUp': ops.push(['priceAdd', Math.round(t.v < 10 ? t.v * 1000 : t.v)]); break;
+      case 'priceDown': ops.push(['priceAdd', -Math.round(t.v < 10 ? t.v * 1000 : t.v)]); break;
+      default: ops.push(['unknown', t.raw]);
+    }
+    lastSlot = slot; pending = null;
+  }
+  return ops;
+}
+/* ===== HẾT BỘ HIỂU CÂU ===== */
+if (typeof module !== 'undefined') module.exports = { tokenize, markKeywords, interpret, canonOf, strip, normPrice };
+/* ===== GIỌNG NGỌC HUYỀN — bộ câu nạp sẵn, ghép lại khi đọc ===== */
+const VOCAB = [
+  'không', 'một', 'mốt', 'hai', 'ba', 'bốn', 'tư', 'năm', 'lăm', 'sáu', 'bảy', 'tám', 'chín', 'mười', 'mươi', 'trăm', 'linh', 'nghìn', 'triệu', 'tỷ', 'phẩy', 'rưỡi',
+  'đồng', 'ký', 'tấn', 'phần trăm', 'phiếu', 'khách', 'xe', 'dòng', 'chuyến', 'ngày',
+  'sắt', 'tole', 'lon', 'sắt đặc',
+  'vô', 'ra', 'giá', 'tạp chất', 'trừ', 'cộng', 'nhân', 'chia', 'bằng', 'thành tiền', 'tổng', 'tổng tiền', 'khối lượng thực', 'khối lượng xe hàng', 'khối lượng xe', 'đơn giá', 'mặt hàng', 'biển số',
+  'tiền mặt', 'chuyển khoản', 'chưa trả', 'còn nợ', 'đã trả', 'không còn nợ ai', 'khách lẻ',
+  'hôm nay', 'hôm qua', 'tuần này', 'tháng này', 'tới giờ', 'so với hôm qua', 'hơn', 'kém', 'của', 'và', 'còn',
+  'đã lưu phiếu', 'đã sửa dòng', 'đã xóa dòng', 'đã mở dòng', 'để sửa', 'có chắc không', 'đã hủy', 'đã hoàn tác', 'còn thiếu', 'chưa đủ số để tính', 'phiếu đang trống', 'phiếu mới',
+  'chưa hiểu, nói lại giúp', 'không có phiếu nào', 'không còn gì để hoàn tác',
+  'giá hiện tại', 'đã đặt giá', 'giá bình quân', 'nhiều nhất', 'phiếu lớn nhất', 'bán nhiều nhất',
+  'đã bật', 'đã tắt', 'đọc to', 'nghe liên tục', 'giao diện', 'dịu mắt', 'xám nhẹ', 'lá dịu', 'tối', 'nắng gắt', 'chữ to hơn', 'chữ nhỏ hơn', 'tương phản cao',
+  'đã copy', 'dán vào zalo được rồi', 'đã lưu khách', 'đã đảo số', 'đã xóa', 'đã đóng',
+  'chào buổi sáng', 'bắt đầu ca', 'giá hôm nay', 'muốn đổi giá thì nói giá sáng nay', 'đã cập nhật giá', 'giữ giá cũ',
+  'chốt ca', 'tổng kết', 'xe đang chờ', 'đã để xe chờ', 'không có xe chờ', 'đã nhận xe chờ', 'lúc',
+  'đã trả nợ', 'đã ghi tiền mặt', 'đã ghi chuyển khoản', 'sao lưu xong', 'chuyến nữa', 'nói vô', 'giống lần trước', 'khớp xe', 'đã trả lại biển số',
+  'xin chào', 'đây là các câu lệnh', 'mời nói'
+];
+const vpNorm = s => String(s).normalize('NFC').toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, ' ').replace(/\s+/g, ' ').trim();
+const VP = { buf: new Map(), dec: new Map(), ctx: null, src: [], timer: null, stop: false };
+
+/* IndexedDB */
+function vpDB() {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open('canNhanhVoice', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('clips');
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  });
+}
+async function vpPut(text, ab) {
+  const k = vpNorm(text); if (!k || !ab || ab.byteLength < 200) return;
+  const db = await vpDB();
+  await new Promise((res, rej) => { const tx = db.transaction('clips', 'readwrite'); tx.objectStore('clips').put(ab, k); tx.oncomplete = res; tx.onerror = () => rej(tx.error); });
+  VP.buf.set(k, ab); VP.dec.delete(k);
+}
+async function vpLoadAll() {
+  try {
+    const db = await vpDB();
+    await new Promise((res, rej) => {
+      const tx = db.transaction('clips', 'readonly'), st = tx.objectStore('clips'), rq = st.openCursor();
+      VP.buf.clear(); VP.dec.clear();
+      rq.onsuccess = () => { const c = rq.result; if (c) { VP.buf.set(c.key, c.value); c.continue(); } else res(); };
+      rq.onerror = () => rej(rq.error);
+    });
+  } catch (e) { }
+  renderPackUI();
+}
+async function vpClear() { const db = await vpDB(); await new Promise(res => { const tx = db.transaction('clips', 'readwrite'); tx.objectStore('clips').clear(); tx.oncomplete = res; }); VP.buf.clear(); VP.dec.clear(); renderPackUI(); }
+
+/* Phát âm thanh */
+function vpCtx() { if (!VP.ctx) { const C = window.AudioContext || window.webkitAudioContext; VP.ctx = new C(); } return VP.ctx; }
+document.addEventListener('pointerdown', () => { if (VP.buf.size) { const c = vpCtx(); if (c.state === 'suspended') c.resume(); } }, { passive: true, capture: true });
+function vpTrim(b) {
+  const d = b.getChannelData(0), th = 0.015, sr = b.sampleRate;
+  let s = 0, e = d.length - 1;
+  while (s < e && Math.abs(d[s]) < th) s++;
+  while (e > s && Math.abs(d[e]) < th) e--;
+  s = Math.max(0, s - Math.floor(sr * 0.015)); e = Math.min(d.length, e + Math.floor(sr * 0.05));
+  const out = vpCtx().createBuffer(b.numberOfChannels, Math.max(1, e - s), sr);
+  for (let c = 0; c < b.numberOfChannels; c++) out.getChannelData(c).set(b.getChannelData(c).subarray(s, e));
+  return out;
+}
+async function vpDecode(k) {
+  if (VP.dec.has(k)) return VP.dec.get(k);
+  const ab = VP.buf.get(k); if (!ab) return null;
+  const b = await new Promise((res, rej) => vpCtx().decodeAudioData(ab.slice(0), res, rej)).catch(() => null);
+  if (!b) return null;
+  const t = vpTrim(b); VP.dec.set(k, t); return t;
+}
+function vpPlan(text) {
+  const plan = []; let total = 0, hit = 0;
+  const maxN = 7;
+  String(text).split(/([,.;:!?\n]+)/).forEach(part => {
+    if (/^[,.;:!?\n]+$/.test(part)) { plan.push({ gap: /[.!?\n]/.test(part) ? 320 : 200 }); return; }
+    const w = vpNorm(part).split(' ').filter(Boolean);
+    let i = 0;
+    while (i < w.length) {
+      let found = null;
+      for (let n = Math.min(maxN, w.length - i); n >= 1; n--) { const k = w.slice(i, i + n).join(' '); if (VP.buf.has(k)) { found = k; break; } }
+      if (found) { const n = found.split(' ').length; plan.push({ key: found }); hit += n; total += n; i += n; }
+      else { total++; i++; }
+    }
+  });
+  return { plan, cov: total ? hit / total : 0 };
+}
+function vpStop() { VP.src.forEach(s => { try { s.stop(); } catch (e) { } }); VP.src = []; clearTimeout(VP.timer); }
+async function vpSpeak(text, onend) {
+  const { plan, cov } = vpPlan(text);
+  if (!plan.some(p => p.key) || cov < (S.settings.packMin || 0.6)) return false;
+  const ctx = vpCtx(); if (ctx.state === 'suspended') { try { await ctx.resume(); } catch (e) { } }
+  const rate = Number(S.settings.rate) || 1;
+  const bufs = [];
+  for (const p of plan) bufs.push(p.key ? await vpDecode(p.key) : p);
+  vpStop();
+  let t = ctx.currentTime + 0.05;
+  for (const b of bufs) {
+    if (!b) continue;
+    if (b.gap) { t += b.gap / 1000 / rate; continue; }
+    const s = ctx.createBufferSource(); s.buffer = b; s.playbackRate.value = rate; s.connect(ctx.destination); s.start(t); VP.src.push(s);
+    t += b.duration / rate + 0.025;
+  }
+  VP.timer = setTimeout(() => { VP.src = []; onend && onend(); }, (t - ctx.currentTime) * 1000 + 60);
+  return true;
+}
+
+/* Nạp bộ giọng từ file zip / file âm thanh */
+async function loadJSZip() {
+  if (window.JSZip) return;
+  await new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js'; s.onload = res; s.onerror = () => rej(new Error('Không tải được thư viện giải nén (cần mạng lần đầu)')); document.head.appendChild(s); });
+}
+function textForFile(name, manifest) {
+  const base = name.split('/').pop(), stem = base.replace(/\.[^.]+$/, '');
+  if (manifest && (manifest[base] || manifest[stem])) return manifest[base] || manifest[stem];
+  const m = stem.match(/^w(\d{3})\b/); if (m && VOCAB[+m[1] - 1]) return VOCAB[+m[1] - 1];
+  return stem.replace(/[_-]+/g, ' ');
+}
+async function vpImportZip(ab) {
+  await loadJSZip();
+  const z = await JSZip.loadAsync(ab);
+  const mf = z.file(/manifest\.json$/i)[0];
+  const manifest = mf ? JSON.parse(await mf.async('string')) : null;
+  const files = z.file(/\.(wav|mp3|ogg|m4a|webm|flac|aac)$/i);
+  let n = 0;
+  for (const f of files) { await vpPut(textForFile(f.name, manifest), await f.async('arraybuffer')); n++; packProgress(n, files.length); }
+  renderPackUI();
+  return n;
+}
+async function vpImportFiles(list) {
+  let n = 0;
+  for (const f of list) {
+    if (/\.zip$/i.test(f.name)) n += await vpImportZip(await f.arrayBuffer());
+    else if (/\.(wav|mp3|ogg|m4a|webm|flac|aac)$/i.test(f.name)) { await vpPut(textForFile(f.name), await f.arrayBuffer()); n++; }
+  }
+  renderPackUI(); return n;
+}
+async function vpImportUrl(url) {
+  const r = await fetch(url); if (!r.ok) throw new Error('Không tải được link (mã ' + r.status + ')');
+  const ab = await r.arrayBuffer();
+  const n = await vpImportZip(ab); renderPackUI(); return n;
+}
+
+/* Tạo bộ giọng trực tiếp từ HuggingFace Space (Gradio) */
+async function gradioClient(space, token) {
+  const mod = await import('https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js');
+  const Client = mod.Client || mod.client;
+  const opts = token ? { hf_token: token } : {};
+  return Client.connect ? Client.connect(space, opts) : Client(space, opts);
+}
+function pickEndpoint(api, want) {
+  const eps = Object.entries(api.named_endpoints || {});
+  if (want) { const e = eps.find(([k]) => k === want || k === '/' + want.replace(/^\//, '')); if (e) return e; }
+  const hasText = ([, v]) => (v.parameters || []).some(p => /text/i.test(p.component || '') || /text|văn bản/i.test(p.label || ''));
+  const hasAudio = ([, v]) => (v.returns || []).some(r => /audio|file/i.test(r.component || '') || /audio/i.test(r.label || ''));
+  const cands = eps.filter(e => hasText(e) && hasAudio(e));
+  const pri = cands.find(([k]) => /tts|synth|generate|infer|speak|predict/i.test(k));
+  return pri || cands[0] || null;
+}
+function buildArgs(ep, text) {
+  let used = false;
+  return (ep.parameters || []).map(p => {
+    const isText = /textbox/i.test(p.component || '') && !used;
+    if (isText) { used = true; return text; }
+    if (p.parameter_has_default) return p.parameter_default;
+    if (/number|slider/i.test(p.component || '')) return 1;
+    if (/checkbox/i.test(p.component || '')) return false;
+    return null;
+  });
+}
+async function spaceOnce(client, epName, ep, text) {
+  const r = await client.predict(epName, buildArgs(ep, text));
+  const out = (r.data || []).flat().find(x => x && (x.url || x.path || (typeof x === 'string' && /^https?:/.test(x))));
+  if (!out) throw new Error('Space không trả về âm thanh');
+  const url = typeof out === 'string' ? out : out.url;
+  const res = await fetch(url); if (!res.ok) throw new Error('Không tải được file âm thanh');
+  return res.arrayBuffer();
+}
+async function vpFromSpace(opts, onProg) {
+  VP.stop = false;
+  const client = await gradioClient(opts.space, opts.token);
+  const api = await client.view_api();
+  const pick = pickEndpoint(api, opts.endpoint);
+  if (!pick) throw new Error('Không tìm thấy chức năng đọc chữ trong Space này. Nhập tên endpoint trong ô "Endpoint".');
+  const [epName, ep] = pick;
+  const todo = VOCAB.filter(t => !VP.buf.has(vpNorm(t)));
+  let done = 0, fail = 0;
+  for (const t of todo) {
+    if (VP.stop) break;
+    try { await vpPut(t, await spaceOnce(client, epName, ep, cap(t) + '.')); done++; }
+    catch (e) { fail++; if (/quota|exceeded|GPU|429/i.test(String(e.message || e))) throw new Error('Space báo hết lượt GPU. Đợi một lúc hoặc nhập HF token rồi bấm tiếp — các câu đã tạo vẫn được giữ.'); }
+    onProg && onProg(VOCAB.length - todo.length + done, VOCAB.length, fail, epName);
+  }
+  renderPackUI();
+  return { done, fail, epName };
+}
+async function vpTestSpace(opts) {
+  const client = await gradioClient(opts.space, opts.token);
+  const api = await client.view_api();
+  const pick = pickEndpoint(api, opts.endpoint);
+  if (!pick) throw new Error('Không tìm thấy endpoint đọc chữ. Các endpoint có: ' + Object.keys(api.named_endpoints || {}).join(', '));
+  const ab = await spaceOnce(client, pick[0], pick[1], 'Xin chào, sắt chín trăm bảy mươi ký.');
+  const b = await new Promise((res, rej) => vpCtx().decodeAudioData(ab.slice(0), res, rej));
+  const s = vpCtx().createBufferSource(); s.buffer = b; s.connect(vpCtx().destination); s.start();
+  return pick[0];
+}
+function vocabText() { return VOCAB.map((t, i) => 'w' + String(i + 1).padStart(3, '0') + '|' + t).join('\n'); }
+
+/* Giao diện phần bộ giọng */
+function packProgress(n, total) { const el = $('pkProg'); if (el) el.textContent = 'Đang nạp ' + n + '/' + total + '…'; }
+function renderPackUI() {
+  const el = $('pkStatus'); if (!el) return;
+  const have = VOCAB.filter(t => VP.buf.has(vpNorm(t))).length;
+  el.className = have ? 'vok' : 'vwarn';
+  el.textContent = have ? `Đã có ${have}/${VOCAB.length} câu giọng Ngọc Huyền${VP.buf.size > have ? ' (+' + (VP.buf.size - have) + ' câu thêm)' : ''}.${have < VOCAB.length ? ' Câu nào thiếu sẽ bỏ qua hoặc đọc bằng giọng máy.' : ''}`
+    : 'Chưa nạp bộ giọng. App đang đọc bằng giọng tiếng Việt của máy.';
+}
+/* ===== ỨNG DỤNG ===== */
+const ITEMS = [{ id: 'sat', name: 'Sắt' }, { id: 'tole', name: 'Tole' }, { id: 'lon', name: 'Lon' }, { id: 'satdac', name: 'Sắt đặc' }];
+const ITEM_NAME = Object.fromEntries(ITEMS.map(i => [i.id, i.name]));
+const NOTE_LBL = { cash: 'Tiền mặt', ck: 'Chuyển khoản', debt: 'Chưa trả' };
+const KEY = 'canNhanhPL_v1';
+const $ = id => document.getElementById(id);
+
+const blankForm = () => ({ id: null, item: '', plate: '', name: '', gross: '', tare: '', tcPct: '', tcKg: '', price: '', priceAuto: true, noteKind: '', note: '' });
+let S = {
+  prices: { sat: 8500, tole: 5000, lon: 18000, satdac: 9000 },
+  customers: [
+    { id: 'c1', code: 'TMT', name: 'a Thanh', plates: [{ p: '61C78412', tare: 2200 }], subOn: true, sub: { sat: 100, tole: 50, lon: 0, satdac: 0 }, note: '' },
+    { id: 'c2', code: 'HT', name: 'Hoàng Tuấn', plates: [{ p: '83C36515', tare: 3100 }], subOn: false, sub: {}, note: '' }
+  ],
+  records: [],
+  settings: { tts: true, cont: false, hc: false, fs: 1, autoCust: true, theme: 'diu', voiceName: '', rate: 1, netVoice: false, usePack: true, voiceFix: true, pkSpace: 'hoangtn4/ngoc-huyen-vbee-tts', pkToken: '', pkEp: '' },
+  waiting: [],
+  form: blankForm()
+};
+let lastSavedId = null, lastSay = { show: '', tts: '' };
+let undoStack = [], viewDate = today(), listFilter = 'all', pendingConfirm = null, saveTimer = null;
+
+function load() { try { const d = JSON.parse(localStorage.getItem(KEY) || 'null'); if (d) S = { ...S, ...d, settings: { ...S.settings, ...(d.settings || {}) }, form: { ...blankForm(), ...(d.form || {}) } }; } catch (e) { } }
+function persist() { clearTimeout(saveTimer); saveTimer = setTimeout(() => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast('Không lưu được vào máy (bộ nhớ trình duyệt bị chặn)', true); } }, 150); }
+
+/* ---- tiện ích ---- */
+function today(d = new Date()) { const z = n => String(n).padStart(2, '0'); return d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()); }
+function addDays(ds, n) { const d = new Date(ds + 'T12:00:00'); d.setDate(d.getDate() + n); return today(d); }
+function dmy(ds) { const [y, m, d] = ds.split('-'); return d + '/' + m + '/' + y; }
+const fmt = n => (n == null || isNaN(n)) ? '' : Number(n).toLocaleString('vi-VN', { maximumFractionDigits: 2 });
+const num = v => (v === '' || v == null || isNaN(Number(v))) ? null : Number(v);
+const normPlate = s => String(s || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+const digitsOf = s => String(s || '').replace(/\D/g, '');
+const title = s => String(s).trim().split(/\s+/).map(w => w ? w[0].toUpperCase() + w.slice(1) : w).join(' ');
+const roundHalf = x => Math.floor(x + 0.5);
+
+function calc(f) {
+  const g = num(f.gross), t = num(f.tare);
+  const r = { goods: null, tc: 0, net: null, money: null };
+  if (g == null || t == null) return r;
+  r.goods = g - t;
+  const pct = num(f.tcPct) || 0, kg = num(f.tcKg) || 0;
+  r.tc = r.goods > 0 ? roundHalf(r.goods * pct / 100 + kg) : 0;
+  r.net = r.goods - r.tc;
+  const p = num(f.price);
+  if (p != null) r.money = Math.round(r.net * p);
+  return r;
+}
+
+/* ---- đọc số thành chữ ---- */
+const DG = ['không', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
+function read3(n, full) {
+  const h = Math.floor(n / 100), t = Math.floor(n % 100 / 10), u = n % 10, p = [];
+  if (full || h) p.push(DG[h] + ' trăm');
+  if (t > 1) { p.push(DG[t] + ' mươi'); if (u === 1) p.push('mốt'); else if (u === 5) p.push('lăm'); else if (u === 4) p.push('tư'); else if (u) p.push(DG[u]); }
+  else if (t === 1) { p.push('mười'); if (u === 5) p.push('lăm'); else if (u) p.push(DG[u]); }
+  else if (u) { if (full || h) p.push('linh'); p.push(DG[u]); }
+  return p.join(' ');
+}
+function readNum(n) {
+  n = Math.round(Math.abs(n)); if (!n) return 'không';
+  const units = ['', ' nghìn', ' triệu', ' tỷ'], g = [];
+  while (n > 0) { g.push(n % 1000); n = Math.floor(n / 1000); }
+  const out = [];
+  for (let i = g.length - 1; i >= 0; i--) { if (!g[i]) continue; out.push(read3(g[i], i < g.length - 1) + units[i]); }
+  return out.join(' ').replace(/\s+/g, ' ').trim();
+}
+const readDec = x => { const s = String(Math.round(x * 100) / 100).split('.'); return readNum(+s[0]) + (s[1] ? ' phẩy ' + s[1].split('').map(d => DG[d]).join(' ') : ''); };
+const cap = s => s ? s[0].toUpperCase() + s.slice(1) : s;
+
+/* ---- khách hàng ---- */
+function findCustByPlate(p) { const n = normPlate(p); if (!n) return null; for (const c of S.customers) for (const x of c.plates) if (normPlate(x.p) === n) return { c, x }; return null; }
+function findCustByName(name) {
+  const s = strip(name).trim(); if (!s) return null;
+  return S.customers.find(c => strip(c.code) === s.replace(/\s/g, '') || strip(c.name) === s) || null;
+}
+function plateScore(np, q) {
+  const nq = normPlate(q), dq = digitsOf(q), dp = digitsOf(np);
+  if (!nq) return 0;
+  if (np === nq) return 100;
+  if (dq && dp === dq) return 90;
+  if (np.endsWith(nq) || (dq.length >= 4 && dp.endsWith(dq))) return 80;
+  if (dq.length >= 4 && dp.startsWith(dq)) return 70;
+  if (np.includes(nq)) return 50;
+  if (dq.length >= 4 && dp.includes(dq)) return 40;
+  return 0;
+}
+function plateCandidates(q) {
+  const nq = normPlate(q), dq = digitsOf(q); if (!nq) return [];
+  const map = new Map();
+  S.customers.forEach(c => c.plates.forEach(x => { const np = normPlate(x.p); if (np.includes(nq) || (dq.length >= 3 && digitsOf(np).includes(dq))) map.set(np, { p: np, name: c.name, tare: x.tare }); }));
+  for (let i = S.records.length - 1; i >= 0 && map.size < 12; i--) {
+    const r = S.records[i], np = normPlate(r.plate);
+    if (!np || map.has(np)) continue;
+    if (np.includes(nq) || (dq.length >= 3 && digitsOf(np).includes(dq))) map.set(np, { p: np, name: r.name, tare: r.tare, hist: true });
+  }
+  return [...map.values()].map(x => ({ ...x, score: plateScore(x.p, q) })).sort((a, b) => b.score - a.score).slice(0, 8);
+}
+function subsidy(name, plate, item) {
+  const c = (findCustByPlate(plate) || {}).c || findCustByName(name);
+  if (!c || !c.subOn || !item) return { v: 0, c };
+  return { v: Number((c.sub || {})[item]) || 0, c };
+}
+function autoPrice(f) {
+  if (!f.item || !(f.priceAuto || f.price === '')) return;
+  const base = S.prices[f.item];
+  if (base) { f.price = base + subsidy(f.name, f.plate, f.item).v; f.priceAuto = true; }
+  else {
+    const last = [...S.records].reverse().find(r => r.item === f.item && ((f.plate && normPlate(r.plate) === normPlate(f.plate)) || (f.name && r.name === f.name)));
+    if (last) { f.price = last.price; f.priceAuto = true; }
+  }
+}
+/* Điền biển số → tên + KL xe */
+function applyPlate(f, plate, log, voice) {
+  const raw = normPlate(plate);
+  const prev = { name: f.name, tare: f.tare, plate: f.plate };
+  f.plate = raw;
+  let hit = findCustByPlate(raw);
+  if (!hit) {
+    const cands = plateCandidates(raw), best = cands[0];
+    const unique = best && (cands.length === 1 || cands[1].score < best.score);
+    if (best && ((best.score >= 70 && unique) || (best.score >= 40 && cands.length === 1))) {
+      f.plate = best.p; hit = findCustByPlate(best.p) || { c: { name: best.name }, x: { tare: best.tare } };
+      if (best.p !== raw) { f._guess = { raw, ...prev }; log && log.push(['Nghe “' + raw + '” → xe ' + best.p + ' (nói “không phải” nếu sai)']); }
+    } else if (cands.length > 1 && log) log.push(['Có ' + cands.length + ' xe gần giống ' + raw + ' — nói đủ số hoặc chọn trong gợi ý', true]);
+  }
+  if (log && f.plate === raw) log.push(['Biển số ' + f.plate]);
+  if (hit) {
+    if (hit.c.name) { f.name = hit.c.name; log && log.push(['Khách ' + f.name]); }
+    if (hit.x.tare && f.tare === '') { f.tare = hit.x.tare; log && log.push(['KL xe ' + fmt(hit.x.tare) + ' (mặc định)']); }
+  }
+  if (f === S.form && f.gross === '') { const w = (S.waiting || []).find(x => x.plate === f.plate); if (w) restoreWaiting(w, log); }
+  autoPrice(f);
+}
+function applyName(f, name, log) {
+  const c = findCustByName(name);
+  f.name = c ? c.name : (name === 'Khách lẻ' ? name : title(name));
+  log && log.push(['Khách ' + f.name]);
+  if (c && !f.plate && c.plates.length === 1) { f.plate = normPlate(c.plates[0].p); log && log.push(['Biển số ' + f.plate]); if (f.tare === '' && c.plates[0].tare) { f.tare = c.plates[0].tare; log && log.push(['KL xe ' + fmt(f.tare)]); } }
+  autoPrice(f);
+}
+
+/* ---- áp dụng thao tác từ giọng nói ---- */
+function applyOps(ops, f, log) {
+  const res = { save: false, changed: new Set(), unknown: [] };
+  for (const o of ops) {
+    const [k, v] = o;
+    switch (k) {
+      case 'item': f.item = v; res.changed.add('item'); log.push(['Mặt hàng ' + ITEM_NAME[v]]); autoPrice(f); res.changed.add('price'); break;
+      case 'plate': applyPlate(f, v, log, true); ['plate', 'name', 'tare', 'price'].forEach(x => res.changed.add(x)); break;
+      case 'name': applyName(f, v, log); ['plate', 'name', 'tare', 'price'].forEach(x => res.changed.add(x)); break;
+      case 'gross': f.gross = v; res.changed.add('gross'); log.push(['KL xe hàng ' + fmt(v)]); if (!f.item) { f.item = 'sat'; autoPrice(f); res.changed.add('item'); res.changed.add('price'); } break;
+      case 'tare': f.tare = v; res.changed.add('tare'); log.push(['KL xe ' + fmt(v)]); if (!f.item) { f.item = 'sat'; autoPrice(f); res.changed.add('item'); res.changed.add('price'); } break;
+      case 'net': {
+        const t = num(f.tare); if (t == null) f.tare = 0;
+        f.gross = (num(f.tare) || 0) + v; res.changed.add('gross'); res.changed.add('tare'); log.push(['KL hàng ' + fmt(v) + ' → xe hàng ' + fmt(f.gross)]); break;
+      }
+      case 'tcPct': f.tcPct = v; res.changed.add('tcPct'); log.push(['Tạp chất ' + fmt(v) + '%']); break;
+      case 'tcKg': f.tcKg = v; res.changed.add('tcKg'); log.push(['Trừ thêm ' + fmt(v) + ' kg']); break;
+      case 'price': f.price = v; f.priceAuto = false; res.changed.add('price'); log.push(['Giá ' + fmt(v)]); break;
+      case 'priceAdd': f.price = (num(f.price) || S.prices[f.item] || 0) + v; f.priceAuto = false; res.changed.add('price'); log.push([(v >= 0 ? 'Cộng ' : 'Trừ ') + fmt(Math.abs(v)) + ' → giá ' + fmt(f.price)]); break;
+      case 'priceNow': f.priceAuto = true; f.price = ''; autoPrice(f); res.changed.add('price'); log.push(['Giá hiện tại ' + fmt(f.price)]); break;
+      case 'note': f.noteKind = v; res.changed.add('note'); log.push([NOTE_LBL[v]]); break;
+      case 'noteFree': f.note = v; res.changed.add('note'); log.push(['Ghi chú: ' + v]); break;
+      case 'save': res.save = true; break;
+      case 'new': Object.assign(f, blankForm()); res.changed.add('all'); log.push(['Phiếu mới']); break;
+      case 'park': res.park = true; break;
+      case 'likeLast': {
+        const last = [...S.records].reverse().find(r => (f.plate && normPlate(r.plate) === normPlate(f.plate)) || (f.name && r.name === f.name));
+        if (!last) { log.push(['Chưa có phiếu cũ của xe này', true]); break; }
+        f.item = last.item; f.tcPct = last.tcPct || ''; f.tcKg = last.tcKg || ''; f.noteKind = last.noteKind || '';
+        if (!f.name) f.name = last.name; if (f.tare === '') f.tare = last.tare;
+        f.priceAuto = true; f.price = ''; autoPrice(f); if (f.price === '') { f.price = last.price; f.priceAuto = false; }
+        ['item', 'tcPct', 'tcKg', 'tare', 'price', 'note', 'name'].forEach(x => res.changed.add(x));
+        log.push(['Giống lần trước: ' + ITEM_NAME[last.item] + (last.tcPct ? ' · TC ' + fmt(last.tcPct) + '%' : '') + (last.tcKg ? ' +' + fmt(last.tcKg) + 'kg' : '')]);
+        break;
+      }
+      case 'unknown': res.unknown.push(v); log.push(['Chưa rõ: ' + v, true]); break;
+    }
+  }
+  return res;
+}
+
+/* ---- xe chờ cân ra ---- */
+function parkForm() {
+  const f = S.form;
+  if (!normPlate(f.plate) || num(f.gross) == null) { say('Cần biển số và KL xe hàng (vô) để cho xe chờ.', null, true); return; }
+  S.waiting = (S.waiting || []).filter(w => w.plate !== normPlate(f.plate));
+  const now = new Date(), z = n => String(n).padStart(2, '0');
+  S.waiting.push({ ...f, id: null, plate: normPlate(f.plate), time: z(now.getHours()) + ':' + z(now.getMinutes()), date: today() });
+  const p = f.plate, g = f.gross;
+  S.form = blankForm(); undoStack = [];
+  renderForm(['all']); renderWait(); persist();
+  say('Xe ' + p + ' chờ cân ra · vô ' + fmt(g) + ' kg', 'Đã để xe chờ, vô ' + readNum(g) + ' ký');
+}
+function restoreWaiting(w, log) {
+  const keep = { tare: S.form.tare };
+  Object.assign(S.form, { ...w, id: null, time: undefined, date: undefined });
+  if (keep.tare !== '' && keep.tare != null) S.form.tare = keep.tare; else S.form.tare = '';
+  log && log.push(['Xe chờ từ ' + w.time + ': vô ' + fmt(w.gross) + ' — nói “ra …” để xong']);
+}
+function renderWait() {
+  const list = S.waiting || [], bar = $('waitBar');
+  bar.classList.toggle('on', list.length > 0);
+  bar.innerHTML = list.map(w => `<button data-wait="${w.plate}">${w.plate}<small>${esc(w.name || '')} · vô ${fmt(w.gross)} · ${w.time}</small></button>`).join('');
+}
+
+/* ---- giao diện form ---- */
+const FIELDS = ['plate', 'name', 'gross', 'tare', 'tcPct', 'tcKg', 'price', 'note'];
+function renderForm(flash) {
+  const f = S.form;
+  FIELDS.forEach(k => { const el = $(k); if (document.activeElement !== el || flash) el.value = f[k] === '' || f[k] == null ? '' : String(f[k]).replace('.', k === 'tcPct' ? ',' : '.'); });
+  [...$('items').children].forEach(b => b.setAttribute('aria-pressed', b.dataset.id === f.item));
+  document.querySelectorAll('[data-tc]').forEach(b => b.setAttribute('aria-pressed', f.tcPct !== '' && Number(b.dataset.tc) === Number(f.tcPct)));
+  [...$('pay').children].forEach(b => b.setAttribute('aria-pressed', b.dataset.k === f.noteKind));
+  $('editing').classList.toggle('on', !!f.id);
+  if (f.id) { const i = recsOf(dayOfRec(f.id)).findIndex(r => r.id === f.id); $('editNo').textContent = i >= 0 ? 'dòng ' + (i + 1) : ''; }
+  if (flash) flash.forEach(k => { const el = k === 'all' ? null : $(k); if (el) { el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); } });
+  renderCalc();
+}
+function renderCalc() {
+  const f = S.form, r = calc(f);
+  const g = num(f.gross), t = num(f.tare);
+  $('wHint').textContent = (g != null && t != null && g < t) ? 'KL xe hàng đang nhỏ hơn KL xe — kiểm tra lại số vô / ra' : '';
+  $('wHint').className = 'hint' + (g != null && t != null && g < t ? ' warn' : '');
+  const sb = subsidy(f.name, f.plate, f.item), base = S.prices[f.item];
+  let ph = '';
+  if (f.item && base) ph = 'Giá hiện tại ' + fmt(base) + (sb.v ? (sb.v > 0 ? ' + trợ giá ' : ' − ') + fmt(Math.abs(sb.v)) + ' (' + sb.c.name + ')' : '');
+  if (f.item && !f.priceAuto && f.price !== '') ph += (ph ? ' · ' : '') + 'giá gõ tay';
+  $('pHint').textContent = ph;
+  const dl = $('steps');
+  if (r.goods == null) dl.innerHTML = '<dt>Nhập KL xe hàng và KL xe để tính</dt><dd></dd>';
+  else dl.innerHTML = `<dt>KL hàng</dt><dd>${fmt(r.goods)} kg</dd><dt>Tạp chất</dt><dd>${fmt(r.tc)} kg</dd><dt>KL thực</dt><dd>${fmt(r.net)} kg</dd>`;
+  $('tItem').textContent = f.item ? ITEM_NAME[f.item] + (f.plate ? ' · ' + f.plate : '') : 'Chưa chọn hàng';
+  $('tCalc').textContent = r.net != null ? fmt(r.net) + ' kg × ' + (f.price !== '' ? fmt(f.price) : '?') : '';
+  $('tMoney').innerHTML = (r.money != null ? fmt(r.money) : '0') + '<small>đ</small>';
+  $('tWords').textContent = r.money ? cap(readNum(r.money)) + ' đồng' : '';
+  persist();
+}
+function renderCount() { $('cnt').textContent = recsOf(today()).length; $('todayLbl').textContent = 'Phế Liệu Trung Hiếu · ' + dmy(today()); }
+
+/* ---- lưu / xóa phiếu ---- */
+const recsOf = d => S.records.filter(r => r.date === d);
+const dayOfRec = id => (S.records.find(r => r.id === id) || {}).date || today();
+function recFromForm(f) {
+  const r = calc(f), now = new Date(), z = n => String(n).padStart(2, '0');
+  return { item: f.item, plate: normPlate(f.plate), name: f.name.trim(), gross: num(f.gross), tare: num(f.tare), tcPct: num(f.tcPct) || 0, tcKg: num(f.tcKg) || 0,
+    tc: r.tc, net: r.net, price: num(f.price), money: r.money, noteKind: f.noteKind, note: f.note.trim(), time: z(now.getHours()) + ':' + z(now.getMinutes()) };
+}
+function validate(f) {
+  const miss = []; const r = calc(f);
+  if (!f.item) miss.push('mặt hàng');
+  if (num(f.gross) == null) miss.push('KL xe hàng');
+  if (num(f.tare) == null) miss.push('KL xe');
+  if (num(f.price) == null || !num(f.price)) miss.push('đơn giá');
+  if (!miss.length && r.goods <= 0) return 'KL xe hàng phải lớn hơn KL xe';
+  return miss.length ? 'Thiếu ' + miss.join(', ') : '';
+}
+function rememberCustomer(f, force) {
+  const p = normPlate(f.plate), name = f.name.trim();
+  if (!p || !name || name === 'Khách lẻ') return false;
+  const hit = findCustByPlate(p);
+  if (hit) { if (force && num(f.tare) != null) hit.x.tare = num(f.tare); if (force && hit.c.name !== name) hit.c.name = name; return !!force; }
+  const c = findCustByName(name);
+  if (c) c.plates.push({ p, tare: num(f.tare) || 0 });
+  else S.customers.push({ id: 'c' + Date.now(), code: '', name, plates: [{ p, tare: num(f.tare) || 0 }], subOn: false, sub: {}, note: '' });
+  return true;
+}
+function saveForm() {
+  const f = S.form, err = validate(f);
+  if (err) { say(err + '.', err, true); return false; }
+  const data = recFromForm(f);
+  let msg;
+  if (f.id) {
+    const r = S.records.find(x => x.id === f.id);
+    if (r) { Object.assign(r, data, { time: r.time }); msg = 'Đã sửa phiếu'; }
+  } else {
+    S.records.push({ id: 'r' + Date.now() + Math.random().toString(36).slice(2, 5), date: today(), ...data });
+    msg = 'Đã lưu phiếu ' + recsOf(today()).length;
+  }
+  if (S.settings.autoCust) rememberCustomer(f, false);
+  if (S.waiting && S.waiting.length) { S.waiting = S.waiting.filter(w => w.plate !== data.plate); renderWait(); }
+  lastSavedId = f.id || S.records[S.records.length - 1].id;
+  S.form = blankForm(); undoStack = [];
+  renderForm(['all']); renderCount(); renderList();
+  toast(msg + ' · ' + fmt(data.money) + ' đ');
+  const ttsMsg = (f.id ? 'Đã sửa dòng' : 'Đã lưu phiếu ' + readNum(recsOf(today()).length)) + ', ' + readNum(data.money) + ' đồng';
+  if ($('voice').classList.contains('on')) say(msg + ' · ' + fmt(data.money) + ' đ', ttsMsg); else speak(ttsMsg);
+  return true;
+}
+function loadRecord(r) {
+  S.form = { ...blankForm(), id: r.id, item: r.item, plate: r.plate, name: r.name, gross: r.gross, tare: r.tare, tcPct: r.tcPct || '', tcKg: r.tcKg || '', price: r.price, priceAuto: false, noteKind: r.noteKind || '', note: r.note || '' };
+  renderForm(['all']); window.scrollTo({ top: 0 });
+}
+function deleteRecord(r) { S.records = S.records.filter(x => x.id !== r.id); if (S.form.id === r.id) S.form = blankForm(); renderForm(); renderCount(); renderList(); persist(); }
+
+/* ---- danh sách ---- */
+function noteText(r) { return [NOTE_LBL[r.noteKind], r.note].filter(Boolean).join(' · '); }
+function renderList() {
+  $('dPick').value = viewDate;
+  const all = recsOf(viewDate);
+  const rows = all.map((r, i) => ({ r, i })).filter(({ r }) => listFilter === 'all' || r.noteKind === listFilter || (listFilter === 'debt' && !r.noteKind));
+  $('lRows').innerHTML = rows.length ? rows.map(({ r, i }) => `
+    <div class="rec${S.form.id === r.id ? ' sel' : ''}" data-id="${r.id}" role="button" tabindex="0">
+      <div class="no">${i + 1}</div>
+      <div class="a">${r.plate || '—'} · ${esc(r.name || 'Không tên')}</div><div class="m">${fmt(r.money)}</div>
+      <div class="b">${ITEM_NAME[r.item]} ${fmt(r.net)} kg × ${fmt(r.price)}${r.tc ? ' · TC ' + fmt(r.tc) : ''} · ${r.time}</div>
+      ${noteText(r) ? `<div class="nt ${r.noteKind || ''}">${esc(noteText(r))}</div>` : '<div></div>'}
+      <div class="b" style="grid-column:2">${fmt(r.gross)} − ${fmt(r.tare)}</div><button class="del" data-del="${r.id}" aria-label="Xóa dòng ${i + 1}">Xóa</button>
+    </div>`).join('') : `<div class="empty">${all.length ? 'Không có phiếu khớp bộ lọc.' : 'Chưa có phiếu nào ngày ' + dmy(viewDate) + '. Nhập số rồi bấm Lưu phiếu.'}</div>`;
+  const st = stats(all);
+  $('lSum').innerHTML = all.length ? `<div class="sum"><span>${all.length} phiếu · KL thực</span><b>${fmt(st.net)} kg</b><span>Tổng tiền</span><b>${fmt(st.money)} đ</b><span>Chưa trả</span><b>${fmt(st.debt)} đ</b></div>` : '';
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function stats(rs) {
+  const o = { n: rs.length, net: 0, money: 0, debt: 0, cash: 0, ck: 0, tc: 0, goods: 0, cust: new Set() };
+  rs.forEach(r => { o.net += r.net || 0; o.money += r.money || 0; o.tc += r.tc || 0; o.goods += (r.gross - r.tare) || 0; if (r.noteKind === 'cash') o.cash += r.money; else if (r.noteKind === 'ck') o.ck += r.money; else o.debt += r.money; o.cust.add(r.plate || r.name); });
+  return o;
+}
+function copyText(rs, d) {
+  const st = stats(rs);
+  return `PHIẾU CÂN ${dmy(d)}\n` + rs.map((r, i) => `${i + 1}. ${r.plate || ''} ${r.name || ''} | ${ITEM_NAME[r.item]} ${fmt(r.net)}kg x ${fmt(r.price)} = ${fmt(r.money)}${noteText(r) ? ' | ' + noteText(r) : ''}`).join('\n') +
+    `\nTỔNG: ${fmt(st.net)} kg · ${fmt(st.money)} đ · Chưa trả ${fmt(st.debt)} đ`;
+}
+async function copyDay(d) {
+  const rs = recsOf(d); if (!rs.length) { say('Ngày ' + dmy(d) + ' chưa có phiếu nào.'); return; }
+  const txt = copyText(rs, d);
+  try { await navigator.clipboard.writeText(txt); say('Đã copy ' + rs.length + ' phiếu, dán vào Zalo được rồi.'); }
+  catch (e) { const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); say('Đã copy ' + rs.length + ' phiếu.'); } catch (_) { say('Máy không cho copy tự động.', null, true); } ta.remove(); }
+}
+
+/* ---- báo cáo bằng câu hỏi ---- */
+function rangeOf(c) {
+  const t = today(), d = new Date(t + 'T12:00:00');
+  if (/\bhom nay\b|\bnay\b.*\bbao nhieu\b/.test(c) && !/\b(tuan|thang)\b/.test(c)) return { from: t, to: t, lbl: 'hôm nay' };
+  if (/\bhom qua\b/.test(c)) return { from: addDays(t, -1), to: addDays(t, -1), lbl: 'hôm qua' };
+  if (/\bhom kia\b/.test(c)) return { from: addDays(t, -2), to: addDays(t, -2), lbl: 'hôm kia' };
+  if (/\btuan truoc\b/.test(c)) { const w = (d.getDay() + 6) % 7; return { from: addDays(t, -w - 7), to: addDays(t, -w - 1), lbl: 'tuần trước' }; }
+  if (/\btuan (nay|nay)\b|\bmay ngay nay\b/.test(c)) { const w = (d.getDay() + 6) % 7; return { from: addDays(t, -w), to: t, lbl: 'tuần này' }; }
+  if (/\bthang truoc\b/.test(c)) { const a = new Date(d.getFullYear(), d.getMonth() - 1, 1), b = new Date(d.getFullYear(), d.getMonth(), 0); return { from: today(a), to: today(b), lbl: 'tháng trước' }; }
+  if (/\bthang (nay|nay)\b/.test(c)) return { from: t.slice(0, 8) + '01', to: t, lbl: 'tháng này' };
+  const m = c.match(/\bngay (\d{1,2})(?: thang (\d{1,2}))?\b/);
+  if (m) { const ds = d.getFullYear() + '-' + String(m[2] || d.getMonth() + 1).padStart(2, '0') + '-' + String(m[1]).padStart(2, '0'); return { from: ds, to: ds, lbl: 'ngày ' + dmy(ds).slice(0, 5) }; }
+  if (/\b(tat ca|tu truoc|toi gio|tong cong tat)\b/.test(c)) return { from: '0000', to: '9999', lbl: 'từ trước tới giờ' };
+  return null;
+}
+function itemIn(tokens) { for (const t of tokens) if (t.k === 'kw' && t.type === 'item') return t.arg; return null; }
+function custIn(c) {
+  const names = new Map();
+  S.customers.forEach(x => names.set(x.name, x)); S.records.forEach(r => r.name && !names.has(r.name) && names.set(r.name, null));
+  let best = null;
+  for (const name of names.keys()) {
+    const full = strip(name).trim();
+    const core = full.split(' ').filter(w => !NAME_PREFIX.has(w)).join(' ');
+    for (const key of [full, core]) if (key && key.length >= 2 && new RegExp('(^| )' + key.replace(/[.*+?^${}()|[\]\\]/g, '') + '( |$)').test(c) && (!best || key.length > best.k.length)) best = { name, k: key };
+  }
+  return best ? best.name : null;
+}
+function report(c, tokens) {
+  const isDebt = /\b(con no|cong no|chua tra|no bao nhieu|no may|thieu bao nhieu|ai no|khach nao no)\b/.test(c);
+  let rg = rangeOf(c) || (isDebt ? { from: '0000', to: '9999', lbl: 'tới giờ' } : { from: today(), to: today(), lbl: 'hôm nay' });
+  let rs = S.records.filter(r => r.date >= rg.from && r.date <= rg.to);
+  const item = itemIn(tokens), cust = custIn(c);
+  const pm = c.match(/\bxe (\d{3,}[a-z0-9]*)/);
+  let who = '';
+  if (item) rs = rs.filter(r => r.item === item);
+  if (cust) { rs = rs.filter(r => r.name === cust); who = ' ' + cust; }
+  else if (pm) { const q = pm[1].toUpperCase(); rs = rs.filter(r => normPlate(r.plate).includes(q) || digitsOf(r.plate).includes(digitsOf(q))); who = ' xe ' + q; }
+  const st = stats(rs), itemL = item ? ' ' + ITEM_NAME[item] : '', L = (who ? who.trim() + ', ' : '') + rg.lbl + itemL;
+
+  if (/\bso voi\b/.test(c)) {
+    const a = stats(recsOf(today())), b = stats(recsOf(addDays(today(), -1)));
+    const diff = a.net - b.net;
+    return [`Hôm nay ${fmt(a.net)} kg · ${fmt(a.money)} đ (${a.n} phiếu)\nHôm qua ${fmt(b.net)} kg · ${fmt(b.money)} đ (${b.n} phiếu)\n${diff >= 0 ? 'Hơn' : 'Kém'} ${fmt(Math.abs(diff))} kg`,
+      `Hôm nay ${readNum(a.net)} ký, hôm qua ${readNum(b.net)} ký, ${diff >= 0 ? 'hơn' : 'kém'} ${readNum(Math.abs(diff))} ký`];
+  }
+  if (isDebt) {
+    const debt = rs.filter(r => !r.noteKind || r.noteKind === 'debt');
+    if (!debt.length) return ['Không còn nợ ai' + (who ? who : '') + ' (' + rg.lbl + ').', 'Không còn nợ ai'];
+    const by = {}; debt.forEach(r => { const k = r.name || r.plate || 'Không tên'; by[k] = (by[k] || 0) + r.money; });
+    const list = Object.entries(by).sort((a, b) => b[1] - a[1]);
+    const tot = list.reduce((s, x) => s + x[1], 0);
+    return ['Còn nợ ' + fmt(tot) + ' đ (' + L + ')\n' + list.map(([k, v]) => '• ' + k + ': ' + fmt(v) + ' đ').join('\n'),
+      (who ? cap(who.trim()) + ' còn nợ ' : 'Tổng còn nợ ') + readNum(tot) + ' đồng' + (!who && list.length > 1 ? ', ' + list.length + ' khách' : '')];
+  }
+  if (!rs.length) return ['Không có phiếu nào (' + L + ').', 'Không có phiếu nào ' + L];
+  if (/\btien mat\b/.test(c)) return ['Tiền mặt đã trả ' + L + ': ' + fmt(st.cash) + ' đ', 'Tiền mặt ' + readNum(st.cash) + ' đồng'];
+  if (/\b(chuyen khoan|ck)\b/.test(c)) return ['Đã chuyển khoản ' + L + ': ' + fmt(st.ck) + ' đ', 'Chuyển khoản ' + readNum(st.ck) + ' đồng'];
+  if (/\btap chat\b/.test(c)) { const pc = st.goods ? st.tc / st.goods * 100 : 0; return [`Tạp chất ${L}: ${fmt(st.tc)} kg (${fmt(Math.round(pc * 100) / 100)}% KL hàng)`, 'Tạp chất ' + readNum(st.tc) + ' ký, ' + readDec(pc) + ' phần trăm']; }
+  if (/\btrung binh\b/.test(c)) { const avg = st.net ? Math.round(st.money / st.net) : 0; return [`Giá bình quân${itemL} ${rg.lbl}: ${fmt(avg)} đ/kg`, 'Giá bình quân ' + readNum(avg) + ' đồng một ký']; }
+  if (/\b(khach nao|ai)\b.*\b(nhieu nhat|lon nhat|dong nhat)\b/.test(c)) {
+    const by = {}; rs.forEach(r => { const k = r.name || r.plate || 'Không tên'; by[k] = (by[k] || 0) + r.net; });
+    const top = Object.entries(by).sort((a, b) => b[1] - a[1]).slice(0, 3);
+    return ['Bán nhiều nhất ' + L + ':\n' + top.map(([k, v], i) => (i + 1) + '. ' + k + ': ' + fmt(v) + ' kg').join('\n'), top[0][0] + ' nhiều nhất, ' + readNum(top[0][1]) + ' ký'];
+  }
+  if (/\b(phieu|xe|chuyen)\b.*\b(lon nhat|nang nhat|nhieu tien nhat|to nhat)\b/.test(c)) {
+    const r = rs.reduce((a, b) => (b.money > a.money ? b : a));
+    return [`Phiếu lớn nhất ${L}: ${r.plate || ''} ${r.name || ''} · ${ITEM_NAME[r.item]} ${fmt(r.net)} kg · ${fmt(r.money)} đ`, 'Phiếu lớn nhất ' + readNum(r.money) + ' đồng, của ' + (r.name || 'xe ' + r.plate)];
+  }
+  if (/\b(may|bao nhieu) (xe|phieu|chuyen|luot)\b|\b(xe|phieu|chuyen) bao nhieu\b|\bmay chuyen\b/.test(c)) return [`${cap(L)}: ${st.n} phiếu`, cap(L.trim()) + ' ' + readNum(st.n) + ' phiếu'];
+  if (/\b(may|bao nhieu) (khach|nguoi)\b/.test(c)) return [`${cap(L)}: ${st.cust.size} khách`, readNum(st.cust.size) + ' khách'];
+  if (/\b(tan|ky|kg|ki|khoi luong|kl|bao nhieu hang)\b/.test(c)) {
+    const tan = /\btan\b/.test(c);
+    return [`KL thực ${L}: ${fmt(st.net)} kg (≈ ${fmt(Math.round(st.net / 100) / 10)} tấn) · ${st.n} phiếu · ${fmt(st.money)} đ`, tan ? readDec(Math.round(st.net / 100) / 10) + ' tấn' : readNum(st.net) + ' ký'];
+  }
+  return [`Tiền mua hàng ${L}: ${fmt(st.money)} đ\n${st.n} phiếu · ${fmt(st.net)} kg · chưa trả ${fmt(st.debt)} đ`, 'Tổng ' + readNum(st.money) + ' đồng'];
+}
+
+/* ---- xử lý câu lệnh ---- */
+function rowRef(c) {
+  const m = c.match(/\b(?:dong|phieu) (\d+|cuoi(?: cung)?|vua roi|vua xong|truoc)\b/) || c.match(/\b(phieu vua roi|phieu cuoi|phieu truoc)\b/);
+  if (!m) return null;
+  const list = recsOf(viewDate);
+  const key = m[1];
+  if (/^\d+$/.test(key)) { const r = list[+key - 1]; return r ? { r, n: +key } : { miss: +key }; }
+  const r = list[list.length - 1] || [...S.records].pop();
+  return r ? { r, n: recsOf(r.date).indexOf(r) + 1 } : { miss: 'cuối' };
+}
+function tokensAfterRow(tokens) {
+  for (let i = 0; i < tokens.length; i++) {
+    const t = tokens[i];
+    if (t.k === 'w' && /^(dong|phieu)$/.test(t.s)) { const n = tokens[i + 1]; if (n && (n.k === 'num' || (n.k === 'w' && /^(cuoi|vua)$/.test(n.s)))) { let j = i + 2; while (tokens[j] && tokens[j].k === 'w' && /^(cung|roi|xong|doi|thanh|sang|la|thanh)$/.test(tokens[j].s)) j++; return tokens.slice(j); } }
+  }
+  return [];
+}
+function describe(r, n) { return `Dòng ${n}: ${r.plate || ''} ${r.name || ''} · ${ITEM_NAME[r.item]} ${fmt(r.gross)} − ${fmt(r.tare)}, TC ${fmt(r.tc)} → ${fmt(r.net)} kg × ${fmt(r.price)} = ${fmt(r.money)} đ${noteText(r) ? ' · ' + noteText(r) : ''}`; }
+function pushUndo() { undoStack.push(JSON.stringify(S.form)); if (undoStack.length > 30) undoStack.shift(); }
+function setPrice(item, v) { S.prices[item] = v; renderPrices(); if (S.form.item === item && S.form.priceAuto) { autoPrice(S.form); renderForm(['price']); } persist(); }
+
+function handle(text, voice) {
+  text = String(text || '').trim(); if (!text) return;
+  VOICE_FIX.on = S.settings.voiceFix !== false;
+  const raw = tokenize(text, voice), tokens = markKeywords(raw), c = ' ' + canonOf(raw) + ' ';
+  const cc = c.trim();
+  showVoice(); $('vHeard').textContent = '“' + text + '”'; $('vHeard').classList.remove('interim'); $('vChips').innerHTML = ''; setAns('');
+
+  // Đang chờ xác nhận
+  if (pendingConfirm) {
+    if (/\b(chac|dong y|ok|oke|co|xoa|dung roi|u|uh|vang|da|lam di)\b/.test(cc) && !/\b(khong|thoi|huy)\b/.test(cc)) { const p = pendingConfirm; clearConfirm(); p.yes(); return; }
+    if (/\b(khong|thoi|huy|bo qua|dung lai|khoan)\b/.test(cc)) { clearConfirm(); say('Đã hủy.'); return; }
+    clearConfirm();
+  }
+  const R = [
+    [/\b(mo ca|bat dau ca|bat dau ngay|vao ca|chao buoi sang|buoi sang roi)\b/, openShift],
+    [/\b(chot ca|het ca|ket thuc ngay|ket thuc ca|tong ket|dong ca|nghi ca|chot so)\b/, closeShift],
+    [/\b(xe dang cho|may xe cho|xe nao (dang )?cho|danh sach (xe )?cho|con xe nao cho)\b|^xe cho$/, () => {
+      const l = S.waiting || [];
+      if (!l.length) return say('Không có xe chờ.', 'Không có xe chờ');
+      say('Xe đang chờ cân ra:\n' + l.map(w => '• ' + w.plate + ' ' + (w.name || '') + ' · vô ' + fmt(w.gross) + ' lúc ' + w.time).join('\n'), 'Xe đang chờ, ' + readNum(l.length) + ' xe');
+    }],
+    [/\b(tra no|tra het no|thanh toan het|tra het|chuyen khoan het|ck het|tien mat het|xoa no|tat toan)\b/, () => {
+      const cust = custIn(cc), pm = cc.match(/\bxe (\d{3,}[a-z0-9]*)/);
+      const kind = /\b(chuyen khoan|ck)\b/.test(cc) ? 'ck' : 'cash';
+      let rs = S.records.filter(r => !r.noteKind || r.noteKind === 'debt');
+      if (cust) rs = rs.filter(r => r.name === cust);
+      else if (pm) rs = rs.filter(r => plateScore(normPlate(r.plate), pm[1]) >= 40);
+      else return say('Nói rõ trả nợ cho ai, VD: trả nợ anh Tư tiền mặt.', null, true);
+      if (!rs.length) return say('Không còn nợ ' + (cust || 'xe ' + pm[1]) + '.', 'Không còn nợ ai');
+      const tot = rs.reduce((a, r) => a + r.money, 0);
+      askConfirm(`Ghi ${NOTE_LBL[kind]} cho ${rs.length} phiếu của ${cust || 'xe ' + pm[1]}, tổng ${fmt(tot)} đ?\nCó chắc không?`, 'Trả nợ ' + readNum(tot) + ' đồng, ' + (kind === 'ck' ? 'chuyển khoản' : 'tiền mặt') + '. Có chắc không?',
+        () => { rs.forEach(r => r.noteKind = kind); persist(); renderList(); say('Đã trả nợ ' + fmt(tot) + ' đ (' + NOTE_LBL[kind] + ').', 'Đã trả nợ, ' + readNum(tot) + ' đồng'); });
+    }],
+    [/\b(chuyen nua|them chuyen|chuyen tiep theo|lap lai phieu|phieu nhu vua roi|y chang phieu truoc|xe nay lai)\b/, () => {
+      const last = S.records.find(r => r.id === lastSavedId) || S.records[S.records.length - 1];
+      if (!last) return say('Chưa có phiếu nào để lặp lại.', null, true);
+      pushUndo();
+      S.form = { ...blankForm(), plate: last.plate, name: last.name, item: last.item, tare: last.tare, tcPct: last.tcPct || '', tcKg: last.tcKg || '', price: last.price, priceAuto: false, noteKind: last.noteKind || '' };
+      renderForm(['all']);
+      const rest = tokensAfterWords(tokens, ['nua', 'theo', 'phieu', 'truoc', 'lai', 'roi']);
+      if (rest.length) { const log = []; applyOps(interpret(rest, S.form), S.form, log); renderForm(['gross', 'tare']); showChips(log); }
+      say('Chuyến nữa: ' + (last.plate || last.name) + ' · ' + ITEM_NAME[last.item] + ' · giá ' + fmt(last.price) + '. Nói “vô …” để cân.', 'Chuyến nữa, nói vô');
+    }],
+    [/\b(sao luu|luu file|xuat file|backup)\b/, () => { $('sExport').click(); say('Đã tải file sao lưu về máy.', 'Sao lưu xong'); }],
+    [/^(khong phai|sai roi|nham roi|nham xe|khong phai xe do)\b/, () => {
+      const g = S.form._guess;
+      if (g) { Object.assign(S.form, { plate: g.raw, name: g.name, tare: g.tare }); delete S.form._guess; autoPrice(S.form); renderForm(['plate', 'name', 'tare']); return say('Đã trả lại biển số ' + g.raw + '.', 'Đã trả lại biển số'); }
+      doUndo();
+    }],
+    [/^(nhac lai|noi lai|lap lai|gi|sao|ha|cai gi)$|\b(nhac lai di|noi lai di|noi lai coi)\b/, () => { if (!lastSay.show) return say('Chưa có gì để nhắc lại.'); say(lastSay.show, lastSay.tts); }],
+    [/\b(danh sach lenh|tro giup|huong dan|cac lenh|lenh gi|noi gi|cau lenh)\b/, () => { openSheet('shHelp'); say('Đây là các câu lệnh. Bấm vào câu nào để chạy thử.'); }],
+    [/\b(hoan tac|undo|quay lai|tro lai|lui lai|khoi phuc)\b/, doUndo],
+    [/\b(xoa|huy|bo) (dong|phieu) (\d+|cuoi|vua)\b|\bxoa phieu (vua roi|cuoi)\b/, () => {
+      const ref = rowRef(cc); if (!ref || ref.miss) return say('Không có dòng ' + (ref ? ref.miss : '') + ' trong ngày ' + dmy(viewDate) + '.', null, true);
+      askConfirm(`Xóa ${describe(ref.r, ref.n).replace(/^Dòng/, 'dòng')}?\nCó chắc không?`, 'Xóa dòng ' + ref.n + ', ' + readNum(ref.r.money) + ' đồng. Có chắc không?', () => { deleteRecord(ref.r); say('Đã xóa dòng ' + ref.n + '.'); });
+    }],
+    [/\b(xem|doc|mo xem) (dong|phieu) (\d+|cuoi|vua)\b|\b(dong|phieu) (\d+|cuoi cung|cuoi|vua roi) (bao nhieu|la bao nhieu|may|the nao)\b|^phieu (vua roi|cuoi)$/, () => {
+      const ref = rowRef(cc); if (!ref || ref.miss) return say('Không tìm thấy dòng đó.', null, true);
+      say(describe(ref.r, ref.n), 'Dòng ' + ref.n + ', ' + ITEM_NAME[ref.r.item] + ' ' + readNum(ref.r.net) + ' ký, ' + readNum(ref.r.money) + ' đồng');
+    }],
+    [/\b(sua|chinh|mo|doi) (dong|phieu) (\d+|cuoi|vua)\b|\b(dong|phieu) (\d+|cuoi cung|cuoi) (?=(tien mat|chuyen khoan|ck|chua tra|no|ghi no|gia|don gia|xe|tap chat|tru|cong|khach|ten|sat|tole|ton|lon|nhom|bi|ra|vo|ghi chu|them))/, () => {
+      const ref = rowRef(cc); if (!ref || ref.miss) return say('Không có dòng đó trong ngày ' + dmy(viewDate) + '.', null, true);
+      const rest = tokensAfterRow(tokens);
+      const ops = interpret(rest, { gross: ref.r.gross, tare: ref.r.tare, price: ref.r.price });
+      if (!ops.length) { loadRecord(ref.r); closeSheets(); return say('Đã mở dòng ' + ref.n + ' để sửa. Sửa xong bấm Lưu phiếu.'); }
+      const f = { ...blankForm(), ...ref.r, priceAuto: false, id: ref.r.id }; const log = [];
+      applyOps(ops.filter(o => o[0] !== 'save' && o[0] !== 'new'), f, log);
+      const err = validate(f); if (err) return say('Không sửa được: ' + err, null, true);
+      Object.assign(ref.r, recFromForm(f), { time: ref.r.time });
+      if (S.form.id === ref.r.id) loadRecord(ref.r);
+      persist(); renderList(); renderCount(); showChips(log);
+      say('Đã sửa dòng ' + ref.n + ' → ' + fmt(ref.r.net) + ' kg · ' + fmt(ref.r.money) + ' đ', 'Đã sửa dòng ' + ref.n + ', còn ' + readNum(ref.r.money) + ' đồng');
+    }],
+    [/\b(copy|cop py|sao chep|chep|gui zalo)\b/, () => copyDay(/\bhom qua\b/.test(cc) ? addDays(today(), -1) : viewDate)],
+    [/\b(tat|dung|ngung) (doc|loa|am thanh|tieng|noi)\b|\bim lang\b|\bdung noi\b/, () => { S.settings.tts = false; syncSettings(); say('Đã tắt đọc to.'); }],
+    [/\b(bat|mo) (doc|loa|am thanh|tieng)\b|\bdoc to\b/, () => { S.settings.tts = true; syncSettings(); say('Đã bật đọc to.'); }],
+    [/\b(dung nghe|ngung nghe|tat mic|tat micro|thoi nghe|tat nghe)\b/, () => { S.settings.cont = false; syncSettings(); stopListen(); say('Đã tắt nghe liên tục.'); }],
+    [/\b(nghe lien tuc|ranh tay|bat nghe|nghe hoai)\b/, () => { S.settings.cont = true; syncSettings(); say('Nghe liên tục đã bật. Nói "dừng nghe" để tắt.'); }],
+    [/\b(chu to|to chu|phong to|chu lon|to len)\b/, () => { fontStep(0.1); say('Chữ to hơn.'); }],
+    [/\b(chu nho|nho chu|thu nho|nho lai)\b/, () => { fontStep(-0.1); say('Chữ nhỏ hơn.'); }],
+    [/\b(tuong phan cao|bat tuong phan)\b/, () => { S.settings.hc = true; syncSettings(); say('Đã bật tương phản cao.'); }],
+    [/\b(tuong phan thuong|tat tuong phan)\b/, () => { S.settings.hc = false; syncSettings(); say('Đã tắt tương phản cao.'); }],
+    [/\b(che do nang|nang gat|ngoai nang|troi nang|mau trang)\b/, () => say('Giao diện ' + setTheme('nang') + '.')],
+    [/\b(diu mat|mau diu|bot choi|do choi|choi mat qua|mau nga|mau giay)\b/, () => say('Giao diện ' + setTheme('diu') + '.')],
+    [/\b(mau xam|xam nhe|xam xanh)\b/, () => say('Giao diện ' + setTheme('xam') + '.')],
+    [/\b(mau xanh la|mau la|la diu|xanh la)\b/, () => say('Giao diện ' + setTheme('la') + '.')],
+    [/\b(che do toi|mau toi|giao dien toi|nen den|ban dem|buoi toi|trong nha)\b/, () => say('Giao diện ' + setTheme('toi') + '.')],
+    [/\b(doi mau|mau khac|doi giao dien)\b/, () => { const i = THEMES.findIndex(x => x.id === S.settings.theme); say('Giao diện ' + setTheme(THEMES[(i + 1) % THEMES.length].id) + '.'); }],
+    [/\b(thu giong|kiem tra giong|giong doc)\b/, testVoice],
+    [/\b(mo|xem) (danh sach|bang ke|so|phieu da luu)\b|\bdanh sach (hom nay|phieu)\b/, () => { viewDate = /\bhom qua\b/.test(cc) ? addDays(today(), -1) : today(); openSheet('shList'); say('Danh sách ' + dmy(viewDate) + '.'); }],
+    [/\b(mo )?cai dat\b/, () => { openSheet('shSet'); say('Mở cài đặt.'); }],
+    [/\b(dong lai|dong bang|thoat|an bang|ve man hinh chinh|tro ve)\b/, () => { closeSheets(); say('Đã đóng.'); }],
+    [/\b(dat gia|gia sang nay|gia hom nay|cap nhat gia|gia moi|doi gia)\b/, () => {
+      const pairs = []; let cur = null;
+      tokens.forEach(t => { if (t.k === 'kw' && t.type === 'item') cur = t.arg; else if (t.k === 'num' && cur) { pairs.push([cur, normPrice(t)]); cur = null; } });
+      if (!pairs.length) { if (tokens.some(t => t.k === 'num')) return false; return readPrices(); }
+      pairs.forEach(([it, v]) => setPrice(it, v));
+      say('Đã cập nhật giá: ' + pairs.map(([it, v]) => ITEM_NAME[it] + ' ' + fmt(v)).join(' · '), 'Đã cập nhật giá, ' + pairs.map(([it, v]) => ITEM_NAME[it] + ' ' + readNum(v)).join(', '));
+    }],
+    [/\bgiu gia( cu)?\b/, () => say('Giữ giá cũ.', 'Giữ giá cũ')],
+    [/\bbang gia\b|\bgia (sat dac|sat|tole|ton|lon|nhom|dac)( hien tai| hom nay| bay gio)? (bao nhieu|la bao nhieu|may|nhieu)\b/, () => {
+      const it = itemIn(tokens);
+      if (it) return say(ITEM_NAME[it] + ': ' + fmt(S.prices[it]) + ' đ/kg', 'Giá ' + ITEM_NAME[it] + ' ' + readNum(S.prices[it]));
+      readPrices();
+    }],
+    [/\btinh (\d+(?:\.\d+)?) (nhan|x|lan|cong|tru|chia) (\d+(?:\.\d+)?)/, m => {
+      const a = +m[1], b = +m[3], op = m[2]; const v = op === 'cong' ? a + b : op === 'tru' ? a - b : op === 'chia' ? a / b : a * b;
+      const r = Math.round(v * 100) / 100; say(fmt(a) + ' ' + ({ cong: '+', tru: '−', chia: '÷' }[op] || '×') + ' ' + fmt(b) + ' = ' + fmt(r), 'Bằng ' + readDec(r));
+    }],
+    [/\b(luu khach|nho khach|them khach nay|luu xe nay)\b/, () => {
+      const f = S.form; if (!normPlate(f.plate) || !f.name.trim()) return say('Cần có biển số và tên khách trước khi lưu khách.', null, true);
+      rememberCustomer(f, true); persist(); renderCusts(); say('Đã lưu khách ' + f.name + ' · xe ' + normPlate(f.plate) + (num(f.tare) != null ? ' · KL xe ' + fmt(f.tare) : ''));
+    }],
+    [/\b(dao|doi cho|doi) (so|xe vo xe ra|vo ra|lai so|nguoc)\b|\bdao nguoc\b|\bnguoc roi\b/, () => { pushUndo(); const f = S.form; [f.gross, f.tare] = [f.tare, f.gross]; renderForm(['gross', 'tare']); say('Đã đảo KL xe hàng và KL xe.'); }],
+    [/\bxoa (gia|don gia|bien so|so xe|khach|ten|tap chat|ghi chu|xe vo|xe ra|kl xe hang|kl xe)\b/, m => {
+      pushUndo(); const f = S.form, k = m[1];
+      const map = { gia: ['price'], 'don gia': ['price'], 'bien so': ['plate'], 'so xe': ['plate'], khach: ['name'], ten: ['name'], 'tap chat': ['tcPct', 'tcKg'], 'ghi chu': ['note', 'noteKind'], 'xe vo': ['gross'], 'kl xe hang': ['gross'], 'xe ra': ['tare'], 'kl xe': ['tare'] }[k];
+      map.forEach(x => f[x] = ''); if (k.includes('gia')) f.priceAuto = false; renderForm(map); say('Đã xóa ' + k.replace('gia', 'giá') + '.');
+    }],
+    [/\b(doc lai phieu|doc lai|doc phieu|kiem tra phieu|phieu nay the nao)\b/, readForm],
+    [/\b(tong|thanh tien|tien)\b.*\b(phieu nay|dang nhap|xe nay)\b|\b(doc tong|doc tien|tong phieu|het bao nhieu|tinh tien)\b|^(bao nhieu tien|tong bao nhieu|thanh tien bao nhieu|tong tien)$/, readTotal],
+    [/\b(kl thuc|ky thuc|khoi luong thuc|hang thuc|tinh ra bao nhieu ky)\b/, () => { const r = calc(S.form); if (r.net == null) return say('Chưa đủ KL xe hàng và KL xe.', null, true); say('KL thực ' + fmt(r.net) + ' kg (tạp chất ' + fmt(r.tc) + ' kg)', readNum(r.net) + ' ký'); }],
+  ];
+  for (const [re, fn] of R) { const m = cc.match(re); if (m) { if (fn(m) !== false) return; } }
+
+  // Câu hỏi báo cáo
+  const q = /\b(bao nhieu|may|tong cong|thong ke|bao cao|con no|cong no|nhieu nhat|lon nhat|trung binh|so voi|ai no)\b/.test(cc);
+  if (q && (rangeOf(cc) || /\b(con no|cong no|chua tra|ai no|so voi|nhieu nhat|lon nhat|trung binh|chuyen|khach)\b/.test(cc) || custIn(cc) || /\bxe \d{3,}/.test(cc))) {
+    const [show, tts] = report(cc, tokens); say(show, tts); return;
+  }
+  if (/^(bao nhieu tien|het bao nhieu|bao nhieu)$/.test(cc)) return readTotal();
+
+  // Điền phiếu
+  const ops = interpret(tokens, S.form);
+  if (!ops.length || ops.every(o => o[0] === 'unknown')) { say('Chưa hiểu câu này. Thử: "xe vô 3200 xe ra 2200 giá 8400", hoặc nói "danh sách lệnh".', 'Chưa hiểu, nói lại giúp', true); return; }
+  pushUndo();
+  const log = [];
+  raw.filter(t => t.fixFrom).forEach(t => log.push(['Nghe ' + t.fixFrom + ' → ' + fmt(t.v)]));
+  const res = applyOps(ops, S.form, log);
+  renderForm([...res.changed]); showChips(log);
+  if (res.park) { parkForm(); return; }
+  if (res.save) { saveForm(); return; }
+  const r = calc(S.form);
+  if (r.money != null) say(`${fmt(r.net)} kg × ${fmt(S.form.price)} = ${fmt(r.money)} đ`, readNum(r.money) + ' đồng');
+  else { const miss = validate(S.form); say(miss ? miss.replace('Thiếu', 'Còn thiếu') : '', log.filter(x => !x[1]).map(x => x[0]).slice(-2).join(', ')); }
+}
+function readPrices() {
+  say('Giá hiện tại:\n' + ITEMS.map(i => i.name + ': ' + fmt(S.prices[i.id])).join('\n'), 'Giá hiện tại, ' + ITEMS.map(i => i.name + ' ' + readNum(S.prices[i.id])).join(', '));
+}
+function tokensAfterWords(tokens) { const i = tokens.findIndex(t => t.k === 'kw' || t.k === 'num'); return i < 0 ? [] : tokens.slice(i); }
+function debtSummary() {
+  const d = S.records.filter(r => !r.noteKind || r.noteKind === 'debt');
+  const by = {}; d.forEach(r => { const k = r.name || r.plate || 'Không tên'; by[k] = (by[k] || 0) + r.money; });
+  return { total: d.reduce((a, r) => a + r.money, 0), list: Object.entries(by).sort((a, b) => b[1] - a[1]) };
+}
+function openShift() {
+  const t = today(), y = stats(recsOf(addDays(t, -1))), d = debtSummary(), w = (S.waiting || []).length;
+  const show = `Chào buổi sáng · ${dmy(t)}\nGiá hiện tại: ${ITEMS.map(i => i.name + ' ' + fmt(S.prices[i.id])).join(' · ')}\n` +
+    `Hôm qua: ${y.n} phiếu · ${fmt(y.net)} kg · ${fmt(y.money)} đ\nCòn nợ: ${fmt(d.total)} đ${d.list.length ? ' (' + d.list.length + ' khách)' : ''}${w ? '\nXe chờ từ trước: ' + w : ''}\n` +
+    `Đổi giá: nói “giá sáng nay sắt 8600 tole 5100”. Giữ nguyên: nói “giữ giá cũ”.`;
+  const tts = 'Chào buổi sáng. Giá hôm nay, ' + ITEMS.map(i => i.name + ' ' + readNum(S.prices[i.id])).join(', ') + '. ' + (d.total ? 'Còn nợ ' + readNum(d.total) + ' đồng. ' : '') + (w ? 'Xe đang chờ ' + readNum(w) + ' xe. ' : '') + 'Muốn đổi giá thì nói giá sáng nay';
+  say(show, tts);
+  if (S.settings.cont === false) afterSpeak(() => startListen());
+}
+function closeShift() {
+  const rs = recsOf(today()), st = stats(rs), d = debtSummary(), w = S.waiting || [];
+  if (!rs.length) return say('Hôm nay chưa có phiếu nào.' + (w.length ? ' Còn ' + w.length + ' xe chờ.' : ''), 'Không có phiếu nào');
+  const byItem = ITEMS.map(i => { const k = rs.filter(r => r.item === i.id).reduce((a, r) => a + r.net, 0); return [i, k]; }).filter(x => x[1]);
+  const todayDebt = rs.filter(r => !r.noteKind || r.noteKind === 'debt');
+  const show = `Chốt ca ${dmy(today())}\n${st.n} phiếu · ${fmt(st.net)} kg (≈ ${fmt(Math.round(st.net / 100) / 10)} tấn)\n` +
+    byItem.map(([i, k]) => '• ' + i.name + ': ' + fmt(k) + ' kg').join('\n') +
+    `\nTổng tiền: ${fmt(st.money)} đ\nTiền mặt: ${fmt(st.cash)} đ · Chuyển khoản: ${fmt(st.ck)} đ\nChưa trả hôm nay: ${fmt(st.debt)} đ${todayDebt.length ? ' (' + [...new Set(todayDebt.map(r => r.name || r.plate))].join(', ') + ')' : ''}` +
+    `\nTổng còn nợ tới giờ: ${fmt(d.total)} đ${w.length ? '\nXe còn chờ: ' + w.map(x => x.plate).join(', ') : ''}\nNói “copy” để gửi Zalo, “sao lưu” để lưu file.`;
+  const tts = 'Chốt ca. Hôm nay ' + readNum(st.n) + ' phiếu, ' + byItem.map(([i, k]) => i.name + ' ' + readNum(k) + ' ký').join(', ') + '. Tổng tiền ' + readNum(st.money) + ' đồng. Tiền mặt ' + readNum(st.cash) + ' đồng, chuyển khoản ' + readNum(st.ck) + ' đồng, chưa trả ' + readNum(st.debt) + ' đồng' + (w.length ? '. Xe đang chờ ' + readNum(w.length) + ' xe' : '');
+  say(show, tts);
+}
+const DAILY = [
+  ['Buổi sáng', [
+    ['run', 'mở ca', 'Mở ca', 'Đọc giá hiện tại, số hôm qua, còn nợ, xe chờ'],
+    ['fill', 'giá sáng nay sắt  tole  lon  sắt đặc ', 'Cập nhật giá sáng nay', 'Nói: “giá sáng nay sắt 8600 tole 5100 lon 18 nghìn”'],
+    ['run', 'giữ giá cũ', 'Giữ giá cũ', 'Không đổi giá'],
+  ]],
+  ['Trong ngày', [
+    ['fill', 'xe  vô  để chờ', 'Xe vô cân, chờ xuống hàng', 'Nói: “xe 61784 vô 3200 để chờ” — lúc ra: “xe 61784 ra 2200 lưu”'],
+    ['run', 'xe đang chờ', 'Xe đang chờ', 'Danh sách xe đã cân vô, chưa cân ra'],
+    ['fill', 'xe  như cũ vô ', 'Xe quen, giống lần trước', 'Nói: “xe 61784 như cũ vô 3200 ra 2200” — tự lấy mặt hàng, tạp chất'],
+    ['run', 'chuyến nữa', 'Chuyến nữa', 'Xe vừa lưu quay lại: giữ biển số, khách, hàng, giá'],
+    ['run', 'phiếu vừa rồi', 'Đọc phiếu vừa rồi', 'Kiểm lại phiếu cuối'],
+    ['run', 'nhắc lại', 'Nhắc lại', 'Đọc lại câu trả lời vừa rồi (lúc ồn)'],
+    ['run', 'hôm nay bao nhiêu tấn', 'Hôm nay bao nhiêu tấn', 'Tổng KL thực trong ngày'],
+    ['run', 'còn nợ khách nào', 'Còn nợ khách nào', 'Danh sách nợ'],
+    ['fill', 'trả nợ  tiền mặt', 'Trả nợ cho khách', 'Nói: “trả nợ anh Tư tiền mặt” hoặc “anh Tư chuyển khoản hết”'],
+  ]],
+  ['Cuối ngày', [
+    ['run', 'chốt ca', 'Chốt ca', 'Tổng phiếu, tấn theo hàng, tiền mặt, CK, nợ, xe còn chờ'],
+    ['run', 'copy', 'Copy gửi Zalo', 'Copy danh sách phiếu hôm nay'],
+    ['run', 'sao lưu', 'Sao lưu', 'Tải file JSON về máy'],
+  ]],
+];
+function renderDaily() {
+  $('dBody').innerHTML = '<div class="daily">' + DAILY.map(([h, l]) => `<h3>${h}</h3>` + l.map(([k, cmd, t, d]) => `<button data-${k}="${esc(cmd)}">${t}<span>${esc(d)}</span></button>`).join('')).join('') + '</div>';
+}
+function readTotal() {
+  const r = calc(S.form);
+  if (r.money == null) return say(validate(S.form) || 'Chưa đủ số để tính.', null, true);
+  say(`${ITEM_NAME[S.form.item]} ${fmt(r.net)} kg × ${fmt(S.form.price)} = ${fmt(r.money)} đ`, readNum(r.net) + ' ký, thành tiền ' + readNum(r.money) + ' đồng');
+}
+function readForm() {
+  const f = S.form, r = calc(f);
+  const parts = [f.plate && 'Xe ' + f.plate, f.name && 'Khách ' + f.name, f.item && ITEM_NAME[f.item], f.gross !== '' && 'Vô ' + fmt(f.gross), f.tare !== '' && 'Ra ' + fmt(f.tare),
+    (f.tcPct !== '' || f.tcKg !== '') && 'TC ' + fmt(f.tcPct || 0) + '% + ' + fmt(f.tcKg || 0) + ' kg', f.price !== '' && 'Giá ' + fmt(f.price), f.noteKind && NOTE_LBL[f.noteKind], r.money != null && '= ' + fmt(r.money) + ' đ'].filter(Boolean);
+  if (!parts.length) return say('Phiếu đang trống.');
+  const tts = [f.plate && 'xe ' + f.plate.split('').join(' '), f.name, f.item && ITEM_NAME[f.item], f.gross !== '' && 'vô ' + readNum(f.gross), f.tare !== '' && 'ra ' + readNum(f.tare),
+    f.tcPct !== '' && 'tạp chất ' + readDec(f.tcPct) + ' phần trăm', f.tcKg && 'trừ ' + readNum(f.tcKg) + ' ký', f.price !== '' && 'giá ' + readNum(f.price), r.money != null && 'thành tiền ' + readNum(r.money) + ' đồng'].filter(Boolean).join(', ');
+  say(parts.join(' · '), tts);
+}
+function doUndo() {
+  const s = undoStack.pop(); if (!s) return say('Không còn gì để hoàn tác.');
+  S.form = JSON.parse(s); renderForm(['all']); say('Đã hoàn tác.');
+}
+
+/* ---- khung giọng nói ---- */
+function showVoice() { $('voice').classList.add('on'); }
+function setAns(t, err) { $('vAns').textContent = t || ''; $('vAns').className = 'ans' + (err ? ' err' : ''); }
+function showChips(log) { $('vChips').innerHTML = log.map(([t, bad]) => `<span class="${bad ? 'bad' : ''}">${esc(t)}</span>`).join(''); }
+function say(show, tts, err) { showVoice(); setAns(show, err); lastSay = { show, tts: tts == null ? show : tts }; if (tts !== '') speak(tts == null ? show : tts); }
+function askConfirm(show, tts, yes) {
+  pendingConfirm = { yes, until: Date.now() + 30000 }; say(show, tts); $('vConfirm').classList.add('on');
+  setTimeout(() => { if (pendingConfirm && Date.now() > pendingConfirm.until) clearConfirm(); }, 30500);
+  afterSpeak(() => startListen(true));
+}
+function clearConfirm() { pendingConfirm = null; $('vConfirm').classList.remove('on'); }
+
+/* ---- đọc to: chỉ dùng giọng tiếng Việt ---- */
+let viVoice = null, allVoices = [], speaking = false, speakQ = [], netAudio = null, warnedNoVoice = false;
+const isVi = v => /^vi([-_]|$)/i.test(v.lang) || /vietnam|việt|tiếng việt/i.test(v.name);
+function pickVoice() {
+  if (!('speechSynthesis' in window)) return;
+  allVoices = speechSynthesis.getVoices();
+  const vi = allVoices.filter(isVi);
+  viVoice = vi.find(v => v.name === S.settings.voiceName) || vi.find(v => /google/i.test(v.name)) || vi[0] || null;
+  renderVoiceUI();
+}
+if ('speechSynthesis' in window) {
+  pickVoice(); speechSynthesis.onvoiceschanged = pickVoice;
+  let tries = 0; const t = setInterval(() => { if (viVoice || ++tries > 20) clearInterval(t); pickVoice(); }, 300); // Android nạp giọng chậm
+}
+function voiceHelpText() {
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  return ios ? 'Cài giọng Việt: Cài đặt iPhone → Trợ năng → Nội dung được đọc → Giọng nói → Tiếng Việt → tải giọng Linh. Xong mở lại trang.'
+    : 'Cài giọng Việt: Cài đặt Android → Hệ thống → Ngôn ngữ → Đầu ra chuyển văn bản thành giọng nói → Công cụ Google → Cài đặt → Cài đặt dữ liệu giọng nói → Tiếng Việt. Xong mở lại trang.';
+}
+function renderVoiceUI() {
+  const sel = $('sVoice'); if (!sel) return;
+  const vi = allVoices.filter(isVi);
+  sel.innerHTML = vi.length ? vi.map(v => `<option value="${esc(v.name)}"${viVoice && v.name === viVoice.name ? ' selected' : ''}>${esc(v.name)} (${esc(v.lang)})</option>`).join('')
+    : '<option value="">Máy chưa có giọng tiếng Việt</option>';
+  sel.disabled = !vi.length;
+  $('sVoiceInfo').innerHTML = vi.length ? `<div class="vok">Đang đọc bằng giọng Việt: ${esc(viVoice.name)}</div>`
+    : `<div class="vwarn">Máy chưa có giọng tiếng Việt nên app sẽ không đọc bằng giọng tiếng Anh.${S.settings.netVoice ? '\nĐang dùng giọng Việt qua mạng (Google).' : '\nBật "đọc qua mạng" ở trên, hoặc:'}\n${voiceHelpText()}</div>`;
+}
+function cleanTts(text) {
+  let t = String(text)
+    .replace(/\b(\d{2})([A-Z]{1,2})(\d{4,5})\b/g, (m, a, b, c) => ' xe ' + (a + c).split('').map(d => DG[d]).join(' ') + ' ')
+    .replace(/(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d+))?/g, (m, a, b) => readNum(+a.replace(/\./g, '')) + (b ? ' phẩy ' + b.split('').map(d => DG[d]).join(' ') : ''));
+  return cleanTts0(t);
+}
+function cleanTts0(text) { return String(text).replace(/\n/g, '. ').replace(/[•·]/g, ',').replace(/(\d)\.(?=\d{3})/g, '$1').replace(/×/g, ' nhân ').replace(/−/g, ' trừ ').replace(/=/g, ' bằng ').replace(/\bđ\b/g, ' đồng').replace(/\bkg\b/g, ' ký'); }
+function stopSpeak() { vpStop(); if ('speechSynthesis' in window) speechSynthesis.cancel(); if (netAudio) { netAudio.onended = netAudio.onerror = null; netAudio.pause(); netAudio = null; } speaking = false; }
+function speak(text) {
+  if (!S.settings.tts || !text) { flushSpeak(); return; }
+  const t = cleanTts(text);
+  stopSpeak();
+  if (S.settings.usePack && VP.buf.size) {
+    speaking = true;
+    vpSpeak(t, () => { speaking = false; flushSpeak(); }).then(ok => { if (!ok) { speaking = false; speakSystem(t); } }).catch(() => { speaking = false; speakSystem(t); });
+    return;
+  }
+  speakSystem(t);
+}
+function speakSystem(t) {
+  if (viVoice) {
+    const u = new SpeechSynthesisUtterance(t);
+    u.voice = viVoice; u.lang = viVoice.lang; u.rate = Number(S.settings.rate) || 1;
+    speaking = true; u.onend = u.onerror = () => { speaking = false; flushSpeak(); };
+    speechSynthesis.speak(u); return;
+  }
+  if (S.settings.netVoice) { speakNet(t); return; }
+  if (!warnedNoVoice) { warnedNoVoice = true; toast('Máy chưa có giọng đọc tiếng Việt — xem Cài đặt › Giọng đọc', true); }
+  flushSpeak();
+}
+function speakNet(t) {
+  const parts = []; let cur = '';
+  t.split(/(?<=[,.;])\s+|\s+/).forEach(w => { if ((cur + ' ' + w).trim().length > 180) { parts.push(cur.trim()); cur = w; } else cur += ' ' + w; });
+  if (cur.trim()) parts.push(cur.trim());
+  let i = 0; speaking = true;
+  const next = () => {
+    if (i >= parts.length) { speaking = false; netAudio = null; flushSpeak(); return; }
+    const a = new Audio('https://translate.google.com/translate_tts?ie=UTF-8&tl=vi&client=tw-ob&q=' + encodeURIComponent(parts[i++]));
+    a.playbackRate = Number(S.settings.rate) || 1; netAudio = a;
+    a.onended = next;
+    a.onerror = () => { speaking = false; netAudio = null; toast('Không đọc qua mạng được (mất mạng hoặc bị chặn)', true); flushSpeak(); };
+    a.play().catch(a.onerror);
+  };
+  next();
+}
+function afterSpeak(fn) { if (speaking) speakQ.push(fn); else setTimeout(fn, 50); }
+function flushSpeak() { const q = speakQ; speakQ = []; q.forEach(f => setTimeout(f, 250)); }
+
+/* ---- màu giao diện ---- */
+const THEMES = [
+  { id: 'nang', name: 'Nắng gắt', d: 'Trắng đen, rõ nhất ngoài trời', a: '#FFFFFF', b: '#FFD100', meta: '#FFD100' },
+  { id: 'diu', name: 'Dịu mắt', d: 'Giấy ngà, vàng nhạt', a: '#F1ECE1', b: '#E3C77E', meta: '#E3C77E' },
+  { id: 'xam', name: 'Xám nhẹ', d: 'Xám xanh, không chói', a: '#E3E6E9', b: '#B7CCDC', meta: '#B7CCDC' },
+  { id: 'la', name: 'Lá dịu', d: 'Xanh lá nhạt', a: '#E5ECE1', b: '#BFD6AE', meta: '#BFD6AE' },
+  { id: 'toi', name: 'Tối', d: 'Trong nhà, buổi tối', a: '#1C1E21', b: '#C9A646', meta: '#1C1E21' },
+];
+function applyTheme() {
+  const t = THEMES.find(x => x.id === S.settings.theme) || THEMES[0];
+  document.body.dataset.theme = t.id;
+  document.querySelector('meta[name="theme-color"]').content = t.meta;
+  const box = $('sThemes');
+  if (box) box.innerHTML = THEMES.map(x => `<button class="theme" data-theme="${x.id}" aria-pressed="${x.id === t.id}" style="--a:${x.a};--b:${x.b}"><i></i><span>${x.name}<small>${x.d}</small></span></button>`).join('');
+}
+function setTheme(id) { S.settings.theme = id; applyTheme(); persist(); const t = THEMES.find(x => x.id === id); return t ? t.name : ''; }
+
+/* ---- nhận giọng nói ---- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null, listening = false, manualStop = false;
+function startListen(once) {
+  showVoice();
+  if (!SR) { $('vStatus').textContent = 'Máy này không nhận giọng nói — gõ lệnh ở ô dưới'; setAns('Dùng Chrome (Android) hoặc Safari (iPhone), mở trang qua https để dùng micro.', true); return; }
+  if (listening) return;
+  if (speaking) stopSpeak();
+  rec = new SR(); rec.lang = 'vi-VN'; rec.interimResults = true; rec.maxAlternatives = 1; rec.continuous = false;
+  manualStop = false; listening = true; $('btnMic').classList.add('on'); $('vStatus').textContent = pendingConfirm ? 'Đang nghe câu trả lời…' : 'Đang nghe… nói xong im 1 giây';
+  let finalText = '';
+  rec.onresult = e => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) { const t = e.results[i][0].transcript; if (e.results[i].isFinal) finalText += t; else interim += t; }
+    if (interim) { $('vHeard').textContent = interim; $('vHeard').classList.add('interim'); }
+  };
+  rec.onerror = e => {
+    const m = { 'not-allowed': 'Chưa cho phép micro. Cấp quyền micro cho trang, và mở trang qua https.', 'service-not-allowed': 'Trình duyệt chặn nhận giọng nói. Mở trang qua https.', 'no-speech': 'Không nghe thấy gì. Bấm micro rồi nói to, gần máy.', network: 'Cần mạng để nhận giọng nói. Gõ lệnh ở ô dưới nếu mất mạng.', 'audio-capture': 'Không tìm thấy micro.' }[e.error];
+    if (m && e.error !== 'aborted') { setAns(m, true); if (e.error !== 'no-speech') { S.settings.cont = false; syncSettings(); } }
+  };
+  rec.onend = () => {
+    listening = false; $('btnMic').classList.remove('on'); $('vStatus').textContent = S.settings.cont ? 'Nghe liên tục — nói "dừng nghe" để tắt' : 'Bấm micro để nói tiếp';
+    if (finalText.trim()) handle(finalText, true);
+    if (S.settings.cont && !manualStop) afterSpeak(() => { if (S.settings.cont && !listening) startListen(); });
+  };
+  try { rec.start(); } catch (e) { listening = false; $('btnMic').classList.remove('on'); }
+}
+function stopListen() { manualStop = true; if (rec && listening) rec.stop(); }
+
+/* ---- bảng trượt ---- */
+function openSheet(id) { closeSheets(); if (id === 'shList') renderList(); if (id === 'shSet') { renderPrices(); renderCusts(); renderPackUI(); } $(id).classList.add('on'); }
+function closeSheets() { document.querySelectorAll('.sheet.on').forEach(s => s.classList.remove('on')); }
+
+/* ---- cài đặt ---- */
+function renderPrices() {
+  $('sPrices').innerHTML = ITEMS.map(i => `<div><label class="f" for="pr_${i.id}">${i.name}</label><input class="in" id="pr_${i.id}" data-pr="${i.id}" inputmode="numeric" value="${S.prices[i.id] || ''}"></div>`).join('');
+}
+function renderCusts() {
+  const q = strip($('sFind').value || '').replace(/\s+/g, '');
+  const list = S.customers.filter(c => !q || strip(c.name + c.code).replace(/\s+/g, '').includes(q) || c.plates.some(p => normPlate(p.p).includes(q.toUpperCase())));
+  $('sCusts').innerHTML = list.length ? list.map(c => `<div class="cust"><b>${esc(c.name)}${c.code ? ' · ' + esc(c.code) : ''}</b>
+    <div class="p">${c.plates.map(p => esc(p.p) + ' (' + fmt(p.tare) + ')').join(', ') || 'Chưa có biển số'}</div>
+    ${c.subOn ? `<div class="p">Trợ giá: ${ITEMS.filter(i => Number((c.sub || {})[i.id])).map(i => i.name + ' ' + (c.sub[i.id] > 0 ? '+' : '') + fmt(c.sub[i.id])).join(', ') || '0'}</div>` : ''}
+    <button data-cust="${c.id}">Sửa</button></div>`).join('') : '<div class="empty">Không có khách khớp.</div>';
+}
+let editingCust = null;
+function openCust(id) {
+  const c = S.customers.find(x => x.id === id) || { id: null, code: '', name: '', plates: [], subOn: false, sub: {}, note: '' };
+  editingCust = c.id;
+  $('cTitle').textContent = c.id ? 'Sửa khách' : 'Thêm khách';
+  $('cCode').value = c.code; $('cName').value = c.name; $('cNote').value = c.note || '';
+  $('cPlates').value = c.plates.map(p => p.p + ' ' + (p.tare || '')).join('\n');
+  $('cSubOn').checked = !!c.subOn;
+  $('cSubs').innerHTML = ITEMS.map(i => `<div><label class="f">${i.name} <span class="u">(giá ${fmt(S.prices[i.id])})</span></label><input class="in" data-sub="${i.id}" inputmode="numeric" value="${(c.sub || {})[i.id] || ''}" placeholder="0"></div>`).join('');
+  $('cDel').style.display = c.id ? '' : 'none';
+  closeSheets(); $('shCust').classList.add('on');
+}
+function saveCust() {
+  const name = $('cName').value.trim(); if (!name) return toast('Cần nhập tên khách', true);
+  const plates = $('cPlates').value.split('\n').map(l => l.trim()).filter(Boolean).map(l => { const m = l.match(/^(.*?)[\s,;]+(\d+)\s*$/); return m ? { p: normPlate(m[1]), tare: +m[2] } : { p: normPlate(l), tare: 0 }; }).filter(p => p.p);
+  const sub = {}; document.querySelectorAll('[data-sub]').forEach(i => { const v = parseInt(i.value.replace(/[^\d-]/g, ''), 10); if (v) sub[i.dataset.sub] = v; });
+  const data = { code: $('cCode').value.trim().toUpperCase(), name, plates, subOn: $('cSubOn').checked, sub, note: $('cNote').value.trim() };
+  if (editingCust) Object.assign(S.customers.find(c => c.id === editingCust), data); else S.customers.push({ id: 'c' + Date.now(), ...data });
+  persist(); toast('Đã lưu khách ' + name); openSheet('shSet');
+  if (S.form.priceAuto) { autoPrice(S.form); renderForm(); }
+}
+function syncSettings() {
+  $('sTts').checked = S.settings.tts; $('sCont').checked = S.settings.cont; $('sHc').checked = S.settings.hc; $('sAutoCust').checked = S.settings.autoCust;
+  document.body.classList.toggle('hc', S.settings.hc);
+  document.documentElement.style.setProperty('--fs', S.settings.fs);
+  $('vCont').textContent = 'Rảnh tay: ' + (S.settings.cont ? 'bật' : 'tắt');
+  $('btnMic').classList.toggle('cont', S.settings.cont);
+  $('sNet').checked = !!S.settings.netVoice; $('sRate').value = String(S.settings.rate || 1);
+  applyTheme(); renderVoiceUI();
+  $('pkUse').checked = S.settings.usePack !== false; $('sFix').checked = S.settings.voiceFix !== false;
+  $('pkSpace').value = S.settings.pkSpace || ''; $('pkToken').value = S.settings.pkToken || ''; $('pkEp').value = S.settings.pkEp || '';
+  persist();
+}
+function testVoice() {
+  const ok = viVoice || S.settings.netVoice;
+  if (!ok) { say('Máy chưa có giọng đọc tiếng Việt. ' + voiceHelpText(), '', true); return; }
+  const was = S.settings.tts; S.settings.tts = true;
+  speak('Xin chào. Sắt chín trăm bảy mươi ký, giá tám nghìn bốn, thành tiền tám triệu một trăm bốn mươi tám nghìn đồng.');
+  S.settings.tts = was;
+}
+function fontStep(d) { S.settings.fs = Math.min(1.4, Math.max(0.85, Math.round((S.settings.fs + d) * 100) / 100)); syncSettings(); }
+
+/* ---- trợ giúp ---- */
+const HELP = [
+  ['Nhập phiếu', [
+    ['xe 61784 sắt, xe vô 3200 xe ra 2200, tạp chất 1 chấm, trừ 20 ký, giá 8400, tiền mặt', 'Điền cả phiếu trong 1 câu'],
+    ['xe vô ba ngàn hai năm chục', 'KL xe hàng 3.250'], ['xe ra hai ngàn tư', 'KL xe 2.400'], ['vô 3 tấn 2 ra 2 tấn 1', 'Nói theo tấn cũng được'],
+    ['3200 2200 8400', 'Số trơn: điền lần lượt xe vô → xe ra → giá'], ['hàng 850', 'Biết sẵn KL hàng: tự tính KL xe hàng'], ['cân lẻ 50 ký giá 18', 'Khách mang lẻ, không có xe'],
+    ['đảo số', 'Nói ngược xe vô / xe ra thì đổi chỗ'], ['xóa xe ra', 'Xóa riêng 1 ô (giá, biển số, tạp chất, ghi chú…)'],
+  ]],
+  ['Biển số · khách', [
+    ['xe 61784', 'Tìm biển số chứa 61784 → tự điền tên + KL xe'], ['biển số 61C 784 12', 'Biển số đầy đủ'], ['xe sáu một bảy tám bốn', 'Đọc từng chữ số'],
+    ['khách hàng anh Tư', 'Điền tên (trùng danh bạ thì tự điền biển số)'], ['khách TMT', 'Nói mã khách'], ['khách lẻ', 'Khách vãng lai'], ['lưu khách', 'Nhớ biển số + tên + KL xe hiện tại'],
+  ]],
+  ['Mặt hàng · tạp chất', [
+    ['tole', 'Chọn Tole (nói "tôn" cũng được)'], ['vỏ lon', 'Chọn Lon'], ['sắt đặc', 'Chọn Sắt đặc'], ['sắt 1 chấm 2', 'Sắt + tạp chất 1,2%'],
+    ['tole 2 chấm trừ 20 ký', 'Tole · 2% + 20 kg'], ['1 phần trăm', 'Tạp chất 1%'], ['tạp chất một rưỡi', 'Tạp chất 1,5%'], ['trừ hai lăm ký', 'Tạp chất thêm 25 kg'], ['không tạp chất', 'Tạp chất về 0'],
+  ]],
+  ['Giá', [
+    ['giá 8 nghìn rưỡi', 'Đơn giá 8.500'], ['giá tám tư', 'Nói tắt → 8.400'], ['giá 18', 'Dưới 100 hiểu là nghìn → 18.000'], ['tăng giá 100', 'Cộng thêm vào giá đang có'], ['giảm giá 200', 'Trừ bớt giá'],
+    ['giá hiện tại', 'Điền lại giá chuẩn (+ trợ giá khách)'], ['đặt giá sắt 8600', 'Đổi giá hiện tại của Sắt'], ['giá tole bao nhiêu', 'Hỏi giá 1 mặt hàng'], ['bảng giá', 'Đọc giá mọi mặt hàng'],
+  ]],
+  ['Thanh toán · lưu', [
+    ['tiền mặt', 'Đã trả tiền mặt'], ['chuyển khoản', 'Đã CK'], ['chưa trả', 'Ghi nợ'], ['ghi chú cân lại lần hai', 'Ghi chú tự do'],
+    ['tổng phiếu này bao nhiêu', 'Đọc thành tiền'], ['đọc lại phiếu', 'Đọc hết các ô để kiểm'], ['lưu', 'Lưu phiếu (cuối câu nói "lưu" cũng được)'], ['phiếu mới', 'Làm trống form'], ['hoàn tác', 'Trả lại trước câu lệnh vừa nói'],
+  ]],
+  ['Sửa · xóa phiếu đã lưu', [
+    ['sửa dòng 3', 'Mở dòng 3 lên form'], ['sửa dòng 3 xe ra 2200', 'Sửa thẳng, tự tính lại'], ['dòng 4 chuyển khoản', 'Đổi thanh toán dòng 4'], ['sửa dòng 2 đổi thành tole', 'Đổi mặt hàng'],
+    ['dòng 5 bao nhiêu', 'Đọc chi tiết dòng 5'], ['phiếu vừa rồi', 'Đọc phiếu cuối'], ['xóa dòng cuối', 'Hỏi lại rồi mới xóa — đáp "chắc" hoặc "thôi"'],
+  ]],
+  ['Hỏi nhanh', [
+    ['hôm nay mua được bao nhiêu tấn', 'Tổng KL thực'], ['hôm nay bao nhiêu tiền', 'Tổng tiền mua'], ['hôm nay mấy xe', 'Số phiếu'], ['hôm qua bao nhiêu ký tole', 'Theo mặt hàng, theo ngày'],
+    ['tuần này bao nhiêu tiền', 'Theo tuần / tháng'], ['còn nợ khách nào', 'Danh sách nợ'], ['anh Tư còn nợ bao nhiêu', 'Nợ 1 khách'], ['xe 61784 hôm nay mấy chuyến', 'Theo biển số'],
+    ['tiền mặt hôm nay bao nhiêu', 'Tiền mặt đã chi'], ['tạp chất hôm nay bao nhiêu', 'Tổng tạp chất và %'], ['giá trung bình sắt tháng này', 'Giá mua bình quân'],
+    ['khách nào bán nhiều nhất tuần này', 'Top khách'], ['phiếu lớn nhất hôm nay', 'Phiếu nhiều tiền nhất'], ['hôm nay so với hôm qua', 'So sánh'], ['tính 1250 nhân 8400', 'Máy tính nhanh, không đụng phiếu'],
+  ]],
+  ['Hằng ngày', [
+    ['mở ca', 'Đầu ngày: giá, số hôm qua, nợ, xe chờ'], ['giá sáng nay sắt 8600 tole 5100', 'Đổi nhiều giá một câu'], ['xe 61784 vô 3200 để chờ', 'Cân vô, xe đi xuống hàng'],
+    ['xe 61784 ra 2200 lưu', 'Xe chờ quay lại cân ra → tự lấy số vô, lưu'], ['xe đang chờ', 'Xe chưa cân ra'], ['xe 61784 như cũ vô 3200 ra 2200', 'Lấy mặt hàng, tạp chất lần trước'],
+    ['chuyến nữa vô 3100', 'Xe vừa lưu quay lại chuyến sau'], ['không phải', 'Khớp nhầm biển số thì trả lại số vừa nói'], ['nhắc lại', 'Đọc lại câu trả lời'],
+    ['trả nợ anh Tư tiền mặt', 'Ghi đã trả các phiếu nợ'], ['chốt ca', 'Tổng kết cuối ngày'], ['sao lưu', 'Tải file sao lưu'],
+  ]],
+  ['Máy · hiển thị', [
+    ['nghe liên tục', 'Rảnh tay: nghe hoài tới khi nói "dừng nghe"'], ['tắt đọc', 'Không đọc to kết quả'], ['thử giọng', 'Nghe thử giọng đọc tiếng Việt'], ['dịu mắt', 'Màu ngà, bớt chói'], ['màu xám', 'Xám xanh nhẹ'], ['màu xanh lá', 'Xanh lá dịu'], ['chế độ tối', 'Nền tối, dùng buổi tối'], ['chế độ nắng', 'Trắng đen, rõ nhất ngoài nắng'], ['đổi màu', 'Chuyển sang màu kế tiếp'], ['tương phản cao', 'Viền dày, chữ đậm hơn'], ['chữ to', 'Tăng cỡ chữ'],
+    ['mở danh sách', 'Xem phiếu hôm nay'], ['copy', 'Copy phiếu trong ngày gửi Zalo'], ['đóng lại', 'Đóng bảng đang mở'],
+  ]],
+];
+function renderHelp() {
+  $('hBody').innerHTML = '<p>Nói số bằng chữ hay bằng số đều được: "ba ngàn hai" = 3.200, "tám tư" = 8.400 (khi nói giá), "1 chấm 5" = 1,5. Bấm vào câu để chạy thử.</p>' +
+    HELP.map(([h, l]) => `<h3>${h}</h3>` + l.map(([s, d]) => `<button data-run="${esc(s)}">“${esc(s)}”<span>${esc(d)}</span></button>`).join('')).join('');
+}
+
+/* ---- thông báo ---- */
+let toastT;
+function toast(t, err) { const el = $('toast'); el.textContent = t; el.className = 'toast on' + (err ? ' err' : ''); clearTimeout(toastT); toastT = setTimeout(() => el.className = 'toast', 2600); }
+
+/* ---- gắn sự kiện ---- */
+function bind() {
+  $('items').innerHTML = ITEMS.map(i => `<button class="item" data-id="${i.id}" aria-pressed="false">${i.name}</button>`).join('');
+  $('items').onclick = e => { const b = e.target.closest('[data-id]'); if (!b) return; S.form.item = b.dataset.id; autoPrice(S.form); renderForm(['price']); };
+  const onNum = (k, dec) => $(k).addEventListener('input', e => {
+    let v = e.target.value;
+    v = dec ? v.replace(/[^\d,.]/g, '').replace(',', '.') : v.replace(/\D/g, '');
+    S.form[k] = v === '' ? '' : (dec ? v : Number(v));
+    if (k === 'price') S.form.priceAuto = false;
+    if (dec && e.target.value !== e.target.value.replace(/[^\d,.]/g, '')) e.target.value = e.target.value.replace(/[^\d,.]/g, '');
+    if (!dec && /\D/.test(e.target.value)) e.target.value = v;
+    if ((k === 'gross' || k === 'tare') && !S.form.item) { S.form.item = 'sat'; autoPrice(S.form); renderForm(); return; }
+    if (k === 'tcPct') document.querySelectorAll('[data-tc]').forEach(b => b.setAttribute('aria-pressed', Number(b.dataset.tc) === Number(S.form.tcPct)));
+    renderCalc();
+  });
+  ['gross', 'tare', 'tcKg', 'price'].forEach(k => onNum(k)); onNum('tcPct', true);
+  ['gross', 'tare'].forEach(k => $(k).addEventListener('blur', renderCalc));
+  $('plate').addEventListener('input', e => { S.form.plate = e.target.value.toUpperCase(); showSug(); renderCalc(); });
+  $('plate').addEventListener('focus', showSug);
+  $('plate').addEventListener('blur', () => setTimeout(() => { $('sug').classList.remove('on'); const p = normPlate(S.form.plate); if (p) { const log = []; const hit = findCustByPlate(p); S.form.plate = p; if (hit) applyPlate(S.form, p, log); renderForm(['name', 'tare']); } }, 180));
+  $('sug').addEventListener('pointerdown', e => { const b = e.target.closest('[data-p]'); if (!b) return; e.preventDefault(); const c = plateCandidates(b.dataset.p).find(x => x.p === b.dataset.p) || {};
+    S.form.plate = b.dataset.p; if (c.name) S.form.name = c.name; if (c.tare && S.form.tare === '') S.form.tare = c.tare; autoPrice(S.form); $('sug').classList.remove('on'); renderForm(['plate', 'name', 'tare', 'price']); $('gross').focus(); });
+  $('name').addEventListener('input', e => { S.form.name = e.target.value; renderCalc(); });
+  $('name').addEventListener('blur', () => { const c = findCustByName(S.form.name); if (c && c.name !== S.form.name) { applyName(S.form, c.name); renderForm(['name', 'plate', 'tare', 'price']); } else { autoPrice(S.form); renderForm(); } });
+  $('note').addEventListener('input', e => { S.form.note = e.target.value; persist(); });
+  document.querySelectorAll('[data-tc]').forEach(b => b.onclick = () => { S.form.tcPct = Number(b.dataset.tc); if (b.dataset.tc === '0') S.form.tcKg = ''; renderForm(['tcPct']); });
+  $('pay').onclick = e => { const b = e.target.closest('[data-k]'); if (!b) return; S.form.noteKind = S.form.noteKind === b.dataset.k ? '' : b.dataset.k; renderForm(); };
+  const order = ['plate', 'name', 'gross', 'tare', 'tcPct', 'tcKg', 'price', 'note'];
+  order.forEach((k, i) => $(k).addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); const n = order[i + 1]; if (n) $(n).focus(); else $(k).blur(); } }));
+  $('btnSave').onclick = saveForm;
+  $('btnClear').onclick = () => { pushUndo(); S.form = blankForm(); renderForm(['all']); toast('Đã làm trống. Nói "hoàn tác" để lấy lại.'); };
+  $('btnCancelEdit').onclick = () => { S.form = blankForm(); renderForm(['all']); };
+  $('btnMic').onclick = () => { if (listening) { stopListen(); } else startListen(); };
+  $('vClose').onclick = () => { stopListen(); $('voice').classList.remove('on'); clearConfirm(); };
+  $('vSend').onclick = () => { const v = $('vInput').value; $('vInput').value = ''; handle(v); };
+  $('vInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('vSend').click(); } });
+  $('vUndo').onclick = doUndo; $('vHelp').onclick = () => openSheet('shHelp');
+  $('vCont').onclick = () => { S.settings.cont = !S.settings.cont; syncSettings(); if (S.settings.cont) startListen(); else stopListen(); };
+  $('vYes').onclick = () => { const p = pendingConfirm; clearConfirm(); p && p.yes(); };
+  $('vNo').onclick = () => { clearConfirm(); say('Đã hủy.'); };
+  $('btnList').onclick = () => { viewDate = today(); openSheet('shList'); };
+  $('btnSet').onclick = () => openSheet('shSet');
+  document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => { closeSheets(); if (b.closest('#shCust')) openSheet('shSet'); });
+  $('dPrev').onclick = () => { viewDate = addDays(viewDate, -1); renderList(); };
+  $('dNext').onclick = () => { viewDate = addDays(viewDate, 1); renderList(); };
+  $('dPick').onchange = e => { if (e.target.value) { viewDate = e.target.value; renderList(); } };
+  $('lToday').onclick = () => { viewDate = today(); renderList(); };
+  $('lCopy').onclick = () => copyDay(viewDate);
+  $('lFilter').onclick = e => { const b = e.target.closest('[data-f]'); if (!b) return; listFilter = b.dataset.f; [...$('lFilter').children].forEach(x => x.setAttribute('aria-pressed', x === b)); renderList(); };
+  $('lRows').onclick = e => {
+    const d = e.target.closest('[data-del]');
+    if (d) { const r = S.records.find(x => x.id === d.dataset.del); const n = recsOf(r.date).indexOf(r) + 1; if (confirm('Xóa dòng ' + n + ' (' + fmt(r.money) + ' đ)?')) { deleteRecord(r); toast('Đã xóa dòng ' + n); } return; }
+    const row = e.target.closest('[data-id]'); if (row) { loadRecord(S.records.find(x => x.id === row.dataset.id)); closeSheets(); toast('Đang sửa phiếu — sửa xong bấm Lưu phiếu'); }
+  };
+  $('sPrices').addEventListener('input', e => { const k = e.target.dataset.pr; if (!k) return; const v = parseInt(e.target.value.replace(/\D/g, ''), 10) || 0; setPrice(k, v); });
+  ['sTts', 'sCont', 'sHc', 'sAutoCust'].forEach(id => $(id).onchange = e => { S.settings[{ sTts: 'tts', sCont: 'cont', sHc: 'hc', sAutoCust: 'autoCust' }[id]] = e.target.checked; syncSettings(); });
+  $('sThemes').onclick = e => { const b = e.target.closest('[data-theme]'); if (b) setTheme(b.dataset.theme); };
+  $('sVoice').onchange = e => { S.settings.voiceName = e.target.value; pickVoice(); persist(); testVoice(); };
+  $('sRate').onchange = e => { S.settings.rate = Number(e.target.value); persist(); testVoice(); };
+  $('sNet').onchange = e => { S.settings.netVoice = e.target.checked; renderVoiceUI(); persist(); if (e.target.checked) testVoice(); };
+  $('sTestVoice').onclick = testVoice;
+  $('btnDaily').onclick = () => openSheet('shDaily');
+  $('dBody').onclick = e => {
+    const r = e.target.closest('[data-run]'), f = e.target.closest('[data-fill]');
+    if (r) { closeSheets(); handle(r.dataset.run); }
+    else if (f) { closeSheets(); showVoice(); const i = $('vInput'); i.value = f.dataset.fill; i.focus(); const p = f.dataset.fill.indexOf('  '); if (p >= 0) i.setSelectionRange(p + 1, p + 1); setAns('Điền số vào chỗ trống rồi bấm Chạy — hoặc bấm micro và nói nguyên câu.'); }
+  };
+  $('waitBar').onclick = e => { const b = e.target.closest('[data-wait]'); if (!b) return; const w = S.waiting.find(x => x.plate === b.dataset.wait); if (!w) return; pushUndo(); S.form = blankForm(); restoreWaiting(w); renderForm(['all']); $('tare').focus(); toast('Xe ' + w.plate + ' — nhập KL xe (ra) rồi Lưu'); };
+  $('pkUse').onchange = e => { S.settings.usePack = e.target.checked; persist(); };
+  $('sFix').onchange = e => { S.settings.voiceFix = e.target.checked; persist(); };
+  ['pkSpace', 'pkToken', 'pkEp'].forEach(id => $(id).onchange = e => { S.settings[id] = e.target.value.trim(); persist(); });
+  const pkOpts = () => ({ space: $('pkSpace').value.trim(), token: $('pkToken').value.trim(), endpoint: $('pkEp').value.trim() });
+  $('pkTest').onclick = async () => { $('pkProg').textContent = 'Đang kết nối Space…'; try { const ep = await vpTestSpace(pkOpts()); $('pkProg').textContent = 'Được rồi — endpoint ' + ep + '. Bấm “Tạo bộ giọng”.'; } catch (e) { $('pkProg').textContent = 'Lỗi: ' + (e.message || e); } };
+  $('pkGen').onclick = async () => {
+    if ($('pkGen').dataset.busy) { VP.stop = true; $('pkGen').textContent = 'Đang dừng…'; return; }
+    $('pkGen').dataset.busy = 1; $('pkGen').textContent = 'Dừng';
+    try { const r = await vpFromSpace(pkOpts(), (n, t, f, ep) => { $('pkProg').textContent = `Đang tạo ${n}/${t} câu${f ? ' · lỗi ' + f : ''} (${ep})…`; renderPackUI(); });
+      $('pkProg').textContent = VP.stop ? 'Đã dừng. Bấm lại để tạo tiếp phần còn thiếu.' : `Xong: thêm ${r.done} câu${r.fail ? ', lỗi ' + r.fail + ' câu (bấm lại để thử tiếp)' : ''}.`; }
+    catch (e) { $('pkProg').textContent = 'Lỗi: ' + (e.message || e); }
+    delete $('pkGen').dataset.busy; $('pkGen').textContent = 'Tạo bộ giọng'; renderPackUI();
+  };
+  $('pkFileBtn').onclick = () => $('pkFile').click();
+  $('pkFile').onchange = async e => { try { const n = await vpImportFiles([...e.target.files]); $('pkProg').textContent = 'Đã nạp ' + n + ' file.'; } catch (er) { $('pkProg').textContent = 'Lỗi: ' + (er.message || er); } e.target.value = ''; };
+  $('pkUrlBtn').onclick = async () => { const u = $('pkUrl').value.trim(); if (!u) return; $('pkProg').textContent = 'Đang tải…'; try { const n = await vpImportUrl(u); $('pkProg').textContent = 'Đã nạp ' + n + ' file.'; } catch (er) { $('pkProg').textContent = 'Lỗi: ' + (er.message || er) + ' (link phải cho phép tải trực tiếp, VD …/resolve/main/…zip)'; } };
+  $('pkVocab').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([vocabText()], { type: 'text/plain' })); a.download = 'vocab.txt'; document.body.appendChild(a); a.click(); a.remove(); };
+  $('pkTry').onclick = async () => { if (!VP.buf.size) return toast('Chưa nạp bộ giọng', true); const was = S.settings.usePack; S.settings.usePack = true; const ok = await vpSpeak(cleanTts('Xin chào. Sắt 970 ký, giá 8.400, thành tiền 8.148.000 đồng.'), () => { }); S.settings.usePack = was; if (!ok) toast('Bộ giọng còn thiếu câu, chưa đọc được câu thử', true); };
+  $('pkClear').onclick = async () => { if (confirm('Xóa toàn bộ giọng Ngọc Huyền đã nạp?')) { await vpClear(); $('pkProg').textContent = ''; } };
+  $('sSmall').onclick = () => fontStep(-0.1); $('sBig').onclick = () => fontStep(0.1);
+  $('sFind').oninput = renderCusts;
+  $('sAddCust').onclick = () => openCust(null);
+  $('sCusts').onclick = e => { const b = e.target.closest('[data-cust]'); if (b) openCust(b.dataset.cust); };
+  $('cSave').onclick = saveCust;
+  $('cDel').onclick = () => { const c = S.customers.find(x => x.id === editingCust); if (c && confirm('Xóa khách ' + c.name + '?')) { S.customers = S.customers.filter(x => x !== c); persist(); openSheet('shSet'); } };
+  $('sExport').onclick = () => {
+    const blob = new Blob([JSON.stringify({ prices: S.prices, customers: S.customers, records: S.records, settings: S.settings }, null, 1)], { type: 'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'CanNhanh_' + today().split('-').reverse().join('') + '.json'; document.body.appendChild(a); a.click(); a.remove();
+  };
+  $('sImport').onclick = () => $('sFile').click();
+  $('sFile').onchange = async e => {
+    const f = e.target.files[0]; if (!f) return;
+    try { const d = JSON.parse(await f.text()); if (!d.records || !d.customers) throw 0;
+      if (!confirm(`Nhập ${d.records.length} phiếu, ${d.customers.length} khách? Dữ liệu hiện tại sẽ bị thay.`)) return;
+      Object.assign(S, { prices: d.prices || S.prices, customers: d.customers, records: d.records, settings: { ...S.settings, ...(d.settings || {}) } }); persist(); syncSettings(); renderCount(); openSheet('shSet'); toast('Đã nhập dữ liệu');
+    } catch (_) { toast('File không đúng định dạng sao lưu', true); }
+    e.target.value = '';
+  };
+  $('sWipe').onclick = () => { if (confirm('Xóa hết phiếu và khách trên máy này?') && confirm('Chắc chắn? Không lấy lại được nếu chưa xuất file.')) { S.records = []; S.customers = []; S.form = blankForm(); persist(); renderForm(['all']); renderCount(); renderCusts(); } };
+  $('hBody').onclick = e => { const b = e.target.closest('[data-run]'); if (b) { closeSheets(); handle(b.dataset.run); } };
+  document.addEventListener('keydown', e => { if (e.key === 'F8') { e.preventDefault(); $('btnMic').click(); } if (e.key === 'Escape') { closeSheets(); $('voice').classList.remove('on'); } });
+}
+function showSug() {
+  const q = S.form.plate, box = $('sug');
+  const c = q ? plateCandidates(q) : [];
+  if (!c.length || (c.length === 1 && c[0].p === normPlate(q))) { box.classList.remove('on'); return; }
+  box.innerHTML = c.map(x => `<button type="button" data-p="${x.p}">${x.p}<span>${esc(x.name || '')}${x.tare ? ' · xe ' + fmt(x.tare) : ''}</span></button>`).join('');
+  box.classList.add('on');
+}
+
+load(); if (!S.waiting) S.waiting = []; bind(); renderHelp(); renderDaily(); syncSettings(); renderForm(); renderCount(); renderWait(); vpLoadAll();
+if (S.settings.cont) $('vStatus').textContent = 'Nghe liên tục đang bật — bấm micro để bắt đầu';
+</script>
+</body></html>
